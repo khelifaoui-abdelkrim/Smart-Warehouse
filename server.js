@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const pallet_routes = require('./routes/paletteRoutes');
-app.use('/pallets',pallet_routes); // this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
+app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
 
 
 const app = express();
