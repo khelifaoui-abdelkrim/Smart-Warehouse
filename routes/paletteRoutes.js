@@ -4,7 +4,7 @@ const Pallet = require('../models/pallet')
 
 const router = express.Router();
 
-router.post('add', async (req,res) =>{
+router.post('/add', async (req,res) =>{
     const {rfid} = req.body;
 
     try{
@@ -14,12 +14,14 @@ router.post('add', async (req,res) =>{
         }
         pallette = new Pallet({
             rfid,
-            imestamps: [{ event: "Produced", time: new Date() }]
+            timestamps: [{ event: "Produced", time: new Date() }]
         })
         await pallette.save();
-        res.status(201).json({ message: "Pallet saved : ✅\n " },pallet);
+        res.status(201).json({ message: "Pallet saved : ✅\n " },pallette);
     }
     catch(err){
         res.status(500).json(err.message);
     }
 })
+
+module.exports = router;

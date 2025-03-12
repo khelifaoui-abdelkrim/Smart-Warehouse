@@ -3,12 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-
-const pallet_routes = require('./routes/paletteRoutes');
-app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
-
-
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -29,6 +25,9 @@ const connectDB = async () =>{
     }
 }
 connectDB();
+
+const pallet_routes = require('./routes/paletteRoutes');
+app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
 
 // Test route
 app.get('/', (req, res) => {
