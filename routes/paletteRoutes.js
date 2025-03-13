@@ -18,7 +18,7 @@ router.post('/add', async (req,res) =>{
             timestamps: [{ event: "Produced", time: new Date() }]
         })
         await pallette.save();
-        res.status(201).json({ message: "Pallet saved : ✅\n " },pallette);
+        res.status(201).json({ message: "Pallet saved  ✅ :" ,pallette});
     }
     catch(err){
         res.status(500).json(err.message);
@@ -28,6 +28,20 @@ router.post('/add', async (req,res) =>{
 //update pallets
 router.put('/update', async (req, res) => {
     const {rfid,status,location} = req.body
+    try{
+        let pal = await Pallet.findOne({rfid});
+        if(!pal){
+           return res.status(404).json({message : "pallet not found"});
+        } 
+        pal.status = status;
+        pal.location = location;
+
+        await pal.save();
+        res.status(200).json({message : "pallet updated !!! ",pal});
+    }
+    catch(err){
+        res.status(500).json({error : err.message})
+    }
 })
 
 //return all pallets
@@ -39,4 +53,16 @@ router.get('/all', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+//delete pallets
+router.delete('/delete', async ((req , res) =>{
+    let {rfid} = req.body.rfid;
+    try {
+       let tag = await Pallet.findOne({rfid});
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}))
+
 module.exports = router;

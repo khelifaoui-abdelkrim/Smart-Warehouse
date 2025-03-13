@@ -8,6 +8,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const pallet_routes = require('./routes/paletteRoutes');
+
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
@@ -26,7 +28,6 @@ const connectDB = async () =>{
 }
 connectDB();
 
-const pallet_routes = require('./routes/paletteRoutes');
 app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
 
 // Test route
