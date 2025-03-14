@@ -6,9 +6,8 @@ const router = express.Router();
 
 //add pallets
 router.post('/add', async (req,res) =>{
-    const {rfid} = req.body;
-
     try{
+        const {rfid} = req.body;
         let pallette = await Pallet.findOne({rfid});
         if(pallette){
             return res.status(400).json({ message: "Pallet already exists" });
@@ -27,8 +26,8 @@ router.post('/add', async (req,res) =>{
 
 //update pallets
 router.put('/update', async (req, res) => {
-    const {rfid,status,location} = req.body
     try{
+        const {rfid,status,location} = req.body;
         let pal = await Pallet.findOne({rfid});
         if(!pal){
            return res.status(404).json({message : "pallet not found"});
@@ -54,15 +53,43 @@ router.get('/all', async (req, res) => {
     }
 });
 
-//delete pallets
-router.delete('/delete', async ((req , res) =>{
-    let {rfid} = req.body.rfid;
+//return a  specified pallet
+router.get('/:rfid', async (req, res) => {
     try {
-       let tag = await Pallet.findOne({rfid});
+        const pallets = await Pallet.findOne({rfid : req.params.rfid}); // Fetch all pallets
+        res.status(200).json(pallets);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+//delete pallets
+router.delete('/:rfid', async (req , res) =>{
+    try {
+       const {rfid} = req.params;
+       const deletePallet = await Pallet.findOneAndDelete({rfid});
+       if(!deletePallet){
+        return res.status(404).json({message : "pallet not found"});
+       }
+       res.status(200).json({message :"pallet deleted succesfuly !" })
 
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-}))
+})
+
+//delete all pallets
+router.delete('/', async (req , res) =>{
+    try {
+       const deleteAllPallet = await Pallet.deleteMany({});
+       if(!deleteAllPallet){
+        return res.status(404).json({message : "no pallet to delete"});
+       }
+       res.status(200).json({message : `${deleteAllPallet.deletedCount} pallets deleted succesfuly !` })
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+})
 
 module.exports = router;
