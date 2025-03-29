@@ -10,7 +10,7 @@ const palletShema = new mongoose.Schema({
     //timestamps
     timestamps: [{
         status: {type : String ,enum: ['in stock', 'waiting for test', 'validated', 'rejected'], default: 'in stock'}, 
-        time: { type: Date, default: Date.now }
+        time: { type: Date, default: Date.now },
     }],
 
     //soft delete flag

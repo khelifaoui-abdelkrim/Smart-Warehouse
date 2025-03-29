@@ -1,15 +1,16 @@
 const Pallet = require('../models/pallet')
 
-//register palette controller
+//register palette 
 const registerPalette = async (req,res) =>{
     try{
-        const {rfid} = req.body;
+        const {rfid,location} = req.body;
         let pallette = await Pallet.findOne({rfid ,deleted : false});
         if(pallette){
             return res.status(400).json({ message: "Pallet already exists" });
         }
         pallette = new Pallet({
             rfid,
+            location : location,
             timestamps: [{ time: new Date() }] 
         })
         await pallette.save();
@@ -19,17 +20,24 @@ const registerPalette = async (req,res) =>{
         res.status(500).json(err.message);
     }
 }
-//update palette location
+//update palette status
 const updateStatus = async (req, res) => {
     try{
-        const {rfid,timestamps} = req.body;
+        const {rfid,status} = req.body;
         let pal = await Pallet.findOne({rfid, deleted : false});
         if(!pal){
            return res.status(404).json({message : "pallet not found"});
-        } 
-        pal.timestamps.push({
-            event : timestamps.event
-        })
+        }
+        let tim = pal.timestamps; 
+        if(tim.length >0){
+            tim[tim.length -1].status = status;
+            tim[tim.length -1].time = new Date();
+        }
+        else{
+            pal.timestamps.push({
+                status : timestamps.status
+            })
+        }
 
         await pal.save();
         res.status(200).json({message : "pallet updated !!! ",pal});
@@ -52,7 +60,7 @@ const getAll = async (req, res) => {
 //return a  specified pallet
 const getPalette = async (req, res) => {
     try {
-        const {rfid} = req.body;
+        const {rfid} = req.params;
         const pallets = await Pallet.findOne({rfid , deleted : false},
         );  
         if(!pallets){
@@ -69,9 +77,9 @@ const deletePalette = async (req , res) =>{
     try {
        const {rfid} = req.params;
        const deletePallet = await Pallet.findOneAndUpdate(
-        {rfid,
-        deleted : true,
-        new : true}
+        {rfid}, //the filter
+        {deleted : true}, //the update
+        {new : true} // the option
        );
        if(!deletePallet){
         return res.status(404).json({message : "pallet not found"});
@@ -83,7 +91,7 @@ const deletePalette = async (req , res) =>{
     }
 }
 
-//delete all pallets
+//delete all pallets (soft delete)
 const deleteAll = async (req , res) =>{
     try {
        const deleteAllPallet = await Pallet.updateMany({deleted : false} , {$set :{deleted : true}});
@@ -96,5 +104,6 @@ const deleteAll = async (req , res) =>{
         res.status(500).json({ error: err.message });
     }
 }
+
 
 module.exports = {updateStatus,getAll,registerPalette,getPalette,deletePalette,deleteAll};
