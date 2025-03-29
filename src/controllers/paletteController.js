@@ -1,20 +1,16 @@
-const express = require('express');
 const Pallet = require('../models/pallet')
 
-
-const router = express.Router();
-
-//add pallets
-router.post('/add', async (req,res) =>{
+//register palette controller
+const registerPalette = async (req,res) =>{
     try{
         const {rfid} = req.body;
-        let pallette = await Pallet.findOne({rfid});
+        let pallette = await Pallet.findOne({rfid ,deleted : false});
         if(pallette){
             return res.status(400).json({ message: "Pallet already exists" });
         }
         pallette = new Pallet({
             rfid,
-            timestamps: [{ event: "Produced", time: new Date() }]
+            timestamps: [{ time: new Date() }] 
         })
         await pallette.save();
         res.status(201).json({ message: "Pallet saved  ✅ :" ,pallette});
@@ -22,18 +18,18 @@ router.post('/add', async (req,res) =>{
     catch(err){
         res.status(500).json(err.message);
     }
-})
-
-//update pallets
-router.put('/update', async (req, res) => {
+}
+//update palette location
+const updateStatus = async (req, res) => {
     try{
-        const {rfid,status,location} = req.body;
-        let pal = await Pallet.findOne({rfid});
+        const {rfid,timestamps} = req.body;
+        let pal = await Pallet.findOne({rfid, deleted : false});
         if(!pal){
            return res.status(404).json({message : "pallet not found"});
         } 
-        pal.status = status;
-        pal.location = location;
+        pal.timestamps.push({
+            event : timestamps.event
+        })
 
         await pal.save();
         res.status(200).json({message : "pallet updated !!! ",pal});
@@ -41,33 +37,42 @@ router.put('/update', async (req, res) => {
     catch(err){
         res.status(500).json({error : err.message})
     }
-})
+} 
 
-//return all pallets
-router.get('/all', async (req, res) => {
+//update palette location
+const getAll = async (req, res) => {
     try {
-        const pallets = await Pallet.find(); // Fetch all pallets
+        const pallets = await Pallet.find({deleted : false}); // Fetch all pallets
         res.status(200).json(pallets);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
+}
 
 //return a  specified pallet
-router.get('/:rfid', async (req, res) => {
+const getPalette = async (req, res) => {
     try {
-        const pallets = await Pallet.findOne({rfid : req.params.rfid}); // Fetch all pallets
+        const {rfid} = req.body;
+        const pallets = await Pallet.findOne({rfid , deleted : false},
+        );  
+        if(!pallets){
+            res.status(404).json("palette not found !");
+        }
         res.status(200).json(pallets);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
+}
 
-//delete pallets
-router.delete('/:rfid', async (req , res) =>{
+//delete a specified pallet (soft delete)
+const deletePalette = async (req , res) =>{
     try {
        const {rfid} = req.params;
-       const deletePallet = await Pallet.findOneAndDelete({rfid});
+       const deletePallet = await Pallet.findOneAndUpdate(
+        {rfid,
+        deleted : true,
+        new : true}
+       );
        if(!deletePallet){
         return res.status(404).json({message : "pallet not found"});
        }
@@ -76,20 +81,20 @@ router.delete('/:rfid', async (req , res) =>{
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-})
+}
 
 //delete all pallets
-router.delete('/', async (req , res) =>{
+const deleteAll = async (req , res) =>{
     try {
-       const deleteAllPallet = await Pallet.deleteMany({});
+       const deleteAllPallet = await Pallet.updateMany({deleted : false} , {$set :{deleted : true}});
        if(!deleteAllPallet){
         return res.status(404).json({message : "no pallet to delete"});
        }
-       res.status(200).json({message : `${deleteAllPallet.deletedCount} pallets deleted succesfuly !` })
+       res.status(200).json({message : `${deleteAllPallet.modifiedCount} pallets deleted succesfuly !` })
 
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-})
+}
 
-module.exports = router;
+module.exports = {updateStatus,getAll,registerPalette,getPalette,deletePalette,deleteAll};
