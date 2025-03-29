@@ -20,7 +20,10 @@ router.get('/:rfid', getPalette);
 //delete pallets
 router.delete('/:rfid', deletePalette);
 
-//delete all pallets
+//hard delete all pallets
+router.put('/', deleteAll);
+
+//hard delete all pallets
 router.delete('/', deleteAll);
 
 module.exports = router;

@@ -39,7 +39,7 @@ const updateStatus = async (req, res) => {
     }
 } 
 
-//update palette location
+//get all pallets
 const getAll = async (req, res) => {
     try {
         const pallets = await Pallet.find({deleted : false}); // Fetch all pallets
