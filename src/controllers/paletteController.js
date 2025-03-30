@@ -1,6 +1,6 @@
 const Pallet = require('../models/pallet')
 
-//register palette 
+//register palette ✅
 const registerPalette = async (req,res) =>{
     try{
         const {rfid,location} = req.body;
@@ -14,13 +14,13 @@ const registerPalette = async (req,res) =>{
             timestamps: [{ time: new Date() }] 
         })
         await pallette.save();
-        res.status(201).json({ message: "Pallet saved  ✅ :" ,pallette});
+        return res.status(201).json({ message: "Pallet saved  ✅ :" ,pallette});
     }
     catch(err){
-        res.status(500).json(err.message);
+        return res.status(500).json(err.message);
     }
 }
-//update palette status
+//update palette status ✅
 const updateStatus = async (req, res) => {
     try{
         const {rfid,status} = req.body;
@@ -35,47 +35,61 @@ const updateStatus = async (req, res) => {
         }
         else{
             pal.timestamps.push({
-                status : timestamps.status
+                time : new Date(),
+                status : status
             })
         }
 
         await pal.save();
-        res.status(200).json({message : "pallet updated !!! ",pal});
+        return res.status(200).json({message : "pallet updated !!! ",pal});
     }
     catch(err){
-        res.status(500).json({error : err.message})
+        return res.status(500).json({error : err.message})
     }
 } 
 
-//get all pallets
+//get all pallets✅
 const getAll = async (req, res) => {
     try {
         const pallets = await Pallet.find({deleted : false}); // Fetch all pallets
-        res.status(200).json(pallets);
+        return res.status(200).json(pallets);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 }
 
-//return a  specified pallet
+//delete all pallets (soft delete)✅
+const getDeleteAll = async (req , res) =>{
+    try {
+        const pallets = await Pallet.find({deleted : true}); // Fetch all pallets
+        return res.status(200).json(pallets);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
+
+//return a  specified pallet ✅
 const getPalette = async (req, res) => {
     try {
         const {rfid} = req.params;
         const pallets = await Pallet.findOne({rfid , deleted : false},
         );  
         if(!pallets){
-            res.status(404).json("palette not found !");
+            return res.status(404).json("palette not found !");
         }
-        res.status(200).json(pallets);
+        return res.status(200).json(pallets);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 }
 
-//delete a specified pallet (soft delete)
+//delete a specified pallet (soft delete) ✅
 const deletePalette = async (req , res) =>{
     try {
        const {rfid} = req.params;
+       if (isNaN(rfid)) {
+        return res.status(400).json({message : "RFID must be a number"});
+       }
        const deletePallet = await Pallet.findOneAndUpdate(
         {rfid}, //the filter
         {deleted : true}, //the update
@@ -91,19 +105,32 @@ const deletePalette = async (req , res) =>{
     }
 }
 
-//delete all pallets (soft delete)
+//delete all pallets (soft delete) ✅
 const deleteAll = async (req , res) =>{
     try {
        const deleteAllPallet = await Pallet.updateMany({deleted : false} , {$set :{deleted : true}});
        if(!deleteAllPallet){
         return res.status(404).json({message : "no pallet to delete"});
        }
-       res.status(200).json({message : `${deleteAllPallet.modifiedCount} pallets deleted succesfuly !` })
+       return res.status(200).json({message : `${deleteAllPallet.modifiedCount} pallets deleted succesfuly !` })
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
+    }
+}
+//restore all deletedpallets (soft delete)✅
+const restoreAll = async (req , res) =>{
+    try {
+       const deleteAllPallet = await Pallet.updateMany({deleted : true} , {$set :{deleted : false}});
+       if(!deleteAllPallet){
+        return res.status(404).json({message : "no pallet to restore"});
+       }
+       return res.status(200).json({message : `${deleteAllPallet.modifiedCount} pallets restored succesfuly !` })
+
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
     }
 }
 
 
-module.exports = {updateStatus,getAll,registerPalette,getPalette,deletePalette,deleteAll};
+module.exports = {updateStatus,getAll,getDeleteAll,registerPalette,getPalette,deletePalette,deleteAll,restoreAll};
