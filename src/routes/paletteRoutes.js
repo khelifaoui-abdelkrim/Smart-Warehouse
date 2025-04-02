@@ -1,5 +1,7 @@
 const express = require('express');
 const Pallet = require('../models/pallet')
+const Pallet = require('../models/scanLog')
+
 
 
 const {registerPalette,updateStatus, getAll,getDeleteAll,getPalette,deletePalette,deleteAll,restoreAll} = require("../controllers/paletteController");

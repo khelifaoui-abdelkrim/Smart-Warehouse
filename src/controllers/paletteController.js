@@ -1,4 +1,6 @@
-const Pallet = require('../models/pallet')
+const Pallet = require('../models/pallet');
+const ScanLog = require('../models/scanLog')
+
 
 //register palette ✅
 const registerPalette = async (req,res) =>{
@@ -11,10 +13,16 @@ const registerPalette = async (req,res) =>{
         pallette = new Pallet({
             rfid,
             location : location,
-            timestamps: [{ time: new Date() }] 
+            last_scan:  new Date() 
+        })
+        Log = new ScanLog({
+            rfid,
+            location ,
+            operator 
         })
         await pallette.save();
-        return res.status(201).json({ message: "Pallet saved  ✅ :" ,pallette});
+        await Log.save();
+        return res.status(201).json({ message: "Pallet/Log saved  ✅ :" ,pallette});
     }
     catch(err){
         return res.status(500).json(err.message);

@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 const pallet_routes = require('./routes/paletteRoutes');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
 const connectDB = async () =>{
@@ -36,6 +36,6 @@ app.get('/', (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+app.listen(PORT,() => {
     console.log(`Server running on port ${PORT}`);
 });
