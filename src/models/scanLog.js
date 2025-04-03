@@ -6,7 +6,7 @@ const palletShema = new mongoose.Schema({
     //status
     status: {type : String ,enum: ['in stock', 'waiting for test', 'validated', 'rejected'], default: 'in stock'},
     //operator
-    operator: { type: String,enum:['AA','BB','CC'] , required : true},
+    operator: { type: mongoose.Collection.Schema.Types. , required : true},
     //last scan
     timestamp: { type: Date,default : Date.now() }
 },
