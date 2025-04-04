@@ -1,11 +1,9 @@
 const Pallet = require('../models/pallet');
-const ScanLog = require('../models/scanLog')
-
 
 //register palette ✅
-const registerPalette = async (req,res) =>{
+exports.registerPalette = async (req,res) =>{
     try{
-        const {rfid,location} = req.body;
+        const {rfid,location,operator} = req.body;
         let pallette = await Pallet.findOne({rfid ,deleted : false});
         if(pallette){
             return res.status(400).json({ message: "Pallet already exists" });
@@ -15,13 +13,7 @@ const registerPalette = async (req,res) =>{
             location : location,
             last_scan:  new Date() 
         })
-        Log = new ScanLog({
-            rfid,
-            location ,
-            operator 
-        })
         await pallette.save();
-        await Log.save();
         return res.status(201).json({ message: "Pallet/Log saved  ✅ :" ,pallette});
     }
     catch(err){
@@ -29,7 +21,7 @@ const registerPalette = async (req,res) =>{
     }
 }
 //update palette status ✅
-const updateStatus = async (req, res) => {
+exports.updateStatus = async (req, res) => {
     try{
         const {rfid,status} = req.body;
         let pal = await Pallet.findOne({rfid, deleted : false});
@@ -57,7 +49,7 @@ const updateStatus = async (req, res) => {
 } 
 
 //get all pallets✅
-const getAll = async (req, res) => {
+exports.getAll = async (req, res) => {
     try {
         const pallets = await Pallet.find({deleted : false}); // Fetch all pallets
         return res.status(200).json(pallets);
@@ -67,7 +59,7 @@ const getAll = async (req, res) => {
 }
 
 //delete all pallets (soft delete)✅
-const getDeleteAll = async (req , res) =>{
+exports.getDeleteAll = async (req , res) =>{
     try {
         const pallets = await Pallet.find({deleted : true}); // Fetch all pallets
         return res.status(200).json(pallets);
@@ -77,7 +69,7 @@ const getDeleteAll = async (req , res) =>{
 }
 
 //return a  specified pallet ✅
-const getPalette = async (req, res) => {
+exports.getPalette = async (req, res) => {
     try {
         const {rfid} = req.params;
         const pallets = await Pallet.findOne({rfid , deleted : false},
@@ -92,7 +84,7 @@ const getPalette = async (req, res) => {
 }
 
 //delete a specified pallet (soft delete) ✅
-const deletePalette = async (req , res) =>{
+exports.deletePalette = async (req , res) =>{
     try {
        const {rfid} = req.params;
        if (isNaN(rfid)) {
@@ -114,7 +106,7 @@ const deletePalette = async (req , res) =>{
 }
 
 //delete all pallets (soft delete) ✅
-const deleteAll = async (req , res) =>{
+exports.deleteAll = async (req , res) =>{
     try {
        const deleteAllPallet = await Pallet.updateMany({deleted : false} , {$set :{deleted : true}});
        if(!deleteAllPallet){
@@ -127,7 +119,7 @@ const deleteAll = async (req , res) =>{
     }
 }
 //restore all deletedpallets (soft delete)✅
-const restoreAll = async (req , res) =>{
+exports.restoreAll = async (req , res) =>{
     try {
        const deleteAllPallet = await Pallet.updateMany({deleted : true} , {$set :{deleted : false}});
        if(!deleteAllPallet){
@@ -140,5 +132,3 @@ const restoreAll = async (req , res) =>{
     }
 }
 
-
-module.exports = {updateStatus,getAll,getDeleteAll,registerPalette,getPalette,deletePalette,deleteAll,restoreAll};

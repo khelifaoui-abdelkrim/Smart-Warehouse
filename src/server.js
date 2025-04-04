@@ -5,10 +5,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const app = express();
 
+const pallet_routes = require('./routes/paletteRoutes');
+const user_routes = require('./routes/userRoutes');
+
 app.use(cors());
 app.use(bodyParser.json());
-
-const pallet_routes = require('./routes/paletteRoutes');
 
 const PORT = process.env.PORT || 3000;
 
@@ -29,6 +30,7 @@ const connectDB = async () =>{
 connectDB();
 
 app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
+app.use('/users',user_routes);
 
 // Test route
 app.get('/', (req, res) => {

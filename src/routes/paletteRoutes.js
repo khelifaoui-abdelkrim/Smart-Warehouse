@@ -1,13 +1,12 @@
 const express = require('express');
 const Pallet = require('../models/pallet')
-const Pallet = require('../models/scanLog')
 
 
 
 const {registerPalette,updateStatus, getAll,getDeleteAll,getPalette,deletePalette,deleteAll,restoreAll} = require("../controllers/paletteController");
 const router = express.Router();
 
-//add pallets✅
+//register palette ✅
 router.post('/add', registerPalette);
 
 //return all pallets✅

@@ -4,9 +4,9 @@ const userShema = new mongoose.Schema({
     //username
     username: { type: String, required: true, unique: true },
     //password
-    password: {type : String ,unique: true },
+    password: {type : String ,required: true },
     //operator
-    role: { type: String , enum : ["operator" , "admin"], default : "operator"},
+    role: { type: String , enum : ["operator" , "admin"], required : true},
 },
 { versionKey: false }//  This removes __v)
 ); 
