@@ -1,5 +1,4 @@
 const express = require('express');
-const User = require('../models/user')
 
 const {registerUser, loginUser, getUserProfile} = require("../controllers/usercontroller")
 const {authMiddleware} = require("../middleware/authMiddleware")
