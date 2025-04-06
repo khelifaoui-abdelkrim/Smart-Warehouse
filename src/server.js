@@ -7,6 +7,7 @@ const app = express();
 
 const pallet_routes = require('./routes/paletteRoutes');
 const user_routes = require('./routes/userRoutes');
+const scanLog_routes = require('./routes/scanLogRoutes');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -30,6 +31,7 @@ const connectDB = async () =>{
 connectDB();
 
 app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
+app.use('/pallets',scanLog_routes);
 app.use('/users',user_routes);
 
 // Test route

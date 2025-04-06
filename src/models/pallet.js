@@ -14,4 +14,4 @@ const palletShema = new mongoose.Schema({
 },
 { versionKey: false }//  This removes __v)
 ); 
-module.exports = mongoose.model('Pallet',palletShema);
+module.exports = mongoose.models.Pallet || mongoose.model('Pallet', palletShema);

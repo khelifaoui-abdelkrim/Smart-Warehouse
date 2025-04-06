@@ -3,7 +3,7 @@
 const scanLog = require("../models/scanLog")
 const Pallet = require('../models/Pallet');
 
-exports.scanLog = async (res, req) =>{
+exports.scanLog = async (req, res) => {
     try {
         const {rfid, location, action} = req.body
         const userID = req.user.userID // when the jwt run req.user = decoded 
@@ -20,6 +20,17 @@ exports.scanLog = async (res, req) =>{
         })
 
         await newLog.save()
+        return res.status(201).json({message : "action saved succefully  : ",log : newLog})
+    } catch (err) {
+        return res.status(500).json({message : "server error : ",err})
+    }
+}
+//get the history of the user actions
+exports.getScanLog = async (req, res) => {
+    try {
+        const userID = req.user.userID // when the jwt run req.user = decoded 
+        const logs = await scanLog.findOne({rfid})
+
         return res.status(201).json({message : "action saved succefully  : ",log : newLog})
     } catch (err) {
         return res.status(500).json({message : "server error : ",err})

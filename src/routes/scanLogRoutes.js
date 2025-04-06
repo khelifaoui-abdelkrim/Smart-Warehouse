@@ -6,3 +6,5 @@ const {authMiddleware} = require("../middleware/authMiddleware")
 const router = express.Router();
 
 router.post("/scan",authMiddleware,scanLog)
+
+module.exports = router
