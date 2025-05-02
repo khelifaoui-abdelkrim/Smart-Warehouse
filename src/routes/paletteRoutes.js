@@ -4,31 +4,41 @@ const {authMiddleware} = require('../middleware/authMiddleware') // add auth mid
 
 
 
-const {registerPalette,updateStatus, getAll,getDeleteAll,getPalette,deletePalette,deleteAll,restoreAll} = require("../controllers/paletteController");
+const {registerPalette,updateStatus, getAll,getDeleteAll,getAllvalidated,valideLot,getPalette,deletePalette,deleteAll,HdeleteAll,restoreAll} = require("../controllers/paletteController");
 const router = express.Router();
 
 //register palette ✅
-router.post('/add',authMiddleware, registerPalette);
+router.post('/add', registerPalette);
 
 //return all pallets✅
-router.get('/all',authMiddleware, getAll);
+router.get('/all',  getAll);
 
 //return all deleted pallets✅
-router.get('/alld',authMiddleware, getDeleteAll);
+router.get('/alld', getDeleteAll);
+
+//return all validated pallets✅
+router.get('/allv',  getAllvalidated);
+
+//validate multi sepcified pallets✅
+router.put('/validate/:lot', valideLot);
 
 //return a  specified pallet✅
-router.get('/:rfid',authMiddleware, getPalette);
+router.get('/:rfid', getPalette);
+
 //update pallets status ✅
-router.put('/update',authMiddleware,updateStatus );
+router.put('/update',updateStatus );
 
 //soft delete all pallets ✅
-router.put('/all',authMiddleware, deleteAll);
+router.put('/all', deleteAll);
+
+//hard delete all pallets ✅
+router.delete('/all', HdeleteAll);
 
 //restore all pallets ✅
 router.put('/alld',authMiddleware, restoreAll);
 
 //soft delete pallet ✅
-router.put('/:rfid',authMiddleware, deletePalette);
+router.put('/:rfid', deletePalette);
 
 
 module.exports = router;
