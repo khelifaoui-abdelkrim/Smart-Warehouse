@@ -8,6 +8,7 @@ const app = express();
 const pallet_routes = require('./routes/paletteRoutes');
 const user_routes = require('./routes/userRoutes');
 const scanLog_routes = require('./routes/scanLogRoutes');
+const model_routes = require('./routes/pallet_modelroutes');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -33,6 +34,7 @@ connectDB();
 app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with the prefix /pallets ex: /pallets/add
 app.use('/pallets',scanLog_routes);
 app.use('/users',user_routes);
+app.use('/models',model_routes);
 
 // Test route
 app.get('/', (req, res) => {
@@ -40,6 +42,9 @@ app.get('/', (req, res) => {
 });
 
 
-app.listen(PORT,'0.0.0.0',() => {
+app.listen(PORT,() => {
     console.log(`Server running on port ${PORT}`);
 });
+// app.listen(PORT,'0.0.0.0',() => {
+//     console.log(`Server running on port ${PORT}`);
+// });

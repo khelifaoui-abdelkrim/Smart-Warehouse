@@ -15,13 +15,13 @@ const router = express.Router();
 router.post('/pallete/add', registerPalette);
 
 //return a  specified pallet✅
-router.get('/pallete/:rfid', getPalette);
+router.get('/pallete/:palette_id', getPalette);
 
 //update pallets status ✅
 router.put('/pallete/update',updateStatus );
 
 //soft delete pallet ✅
-router.put('/pallete/:rfid', deletePalette);
+router.put('/pallete/:palette_id', deletePalette);
 
 ///////////////////////////////////////////////
 ///multi palletes////
@@ -43,7 +43,7 @@ router.put('/validate/:lot', valideLot);
 router.put('/all', deleteAll);
 
 //hard delete all pallets ✅
-router.delete('/all', HdeleteAll);router.delete('/all', HdeleteAll);
+router.delete('/all', HdeleteAll);
 
 
 //restore all pallets ✅

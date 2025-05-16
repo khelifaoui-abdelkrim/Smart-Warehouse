@@ -1,20 +1,50 @@
 const Pallet = require('../models/pallet');
+const Config = require('../models/config');
+
+
+//function to generate a lot identifier 
+function lotGenerator(fabrication = new Date(),location = "A",model = "A") {
+    const year = fabrication.getFullYear().toString().slice(-2); // 25 for example
+    
+    //day of year calculation
+    const start = new Date(fabrication.getFullYear(), 0, 0);
+    const diff = fabrication - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
+
+    const dayStr = dayOfYear.toString().padStart(3, '0'); // 099
+
+    return `${year}${location}${model}${dayStr}`;
+}
 
 //register palette ✅
 exports.registerPalette = async (req,res) =>{
     try{
-        const {rfid,location,operator} = req.body;
-        let pallette = await Pallet.findOne({rfid ,deleted : false});
-        if(pallette){
+        const {palette_id,location} = req.body;
+        let pallete = await Pallet.findOne({palette_id ,deleted : false});
+        let config = await Config.findOne({key :"model"}); // get the model form the config collection
+
+        if(pallete){
             return res.status(400).json({ message: "Pallet already exists" });
         }
-        pallette = new Pallet({
-            rfid,
+        //get the current model 
+        const model = config.value;
+
+        //define expiration and fabrication date
+        const fabricationDate = new Date();
+        const expirationDate = new Date(fabricationDate);
+        expirationDate.setFullYear(fabricationDate.getFullYear()+1)
+
+        pallete = new Pallet({
+            palette_id : palette_id,
             location : location,
-            last_scan:  new Date()
+            model : model,
+            lot : lotGenerator(fabricationDate,location,model),
+            fabrication : fabricationDate,
+            expiration : expirationDate
         })
-        await pallette.save();
-        return res.status(201).json({ message: "Pallet/Log saved  ✅ :" ,pallette});
+        await pallete.save();
+        return res.status(201).json({ message: "Pallet/Log saved  ✅ :" ,pallete});
     }
     catch(err){
         return res.status(500).json(err.message);
@@ -23,13 +53,13 @@ exports.registerPalette = async (req,res) =>{
 //update palette status ✅
 exports.updateStatus = async (req, res) => {
     try {
-        const { rfid, status } = req.body;
+        const { palette_id, status } = req.body;
 
-        if (!rfid || !status) {
-            return res.status(400).json({ message: "rfid and status are required" });
+        if (!palette_id || !status) {
+            return res.status(400).json({ message: "palette_id and status are required" });
         }
 
-        const pal = await Pallet.findOne({ rfid, deleted: false });
+        const pal = await Pallet.findOne({ palette_id, deleted: false });
 
         if (!pal) {
             return res.status(404).json({ message: "Pallet not found" });
@@ -60,7 +90,7 @@ exports.getAll = async (req, res) => {
 //get all validated pallets✅
 exports.getAllvalidated = async (req, res) => {
     try {
-        const pallets = await Pallet.find({deleted : false , current_status: 'validated'}); // Fetch all pallets
+        const pallets = await Pallet.find({deleted : false , current_status: 'V'}); // Fetch all pallets
         return res.status(200).json(pallets);
     } catch (err) {
         return res.status(500).json({ error: err.message });
@@ -72,13 +102,8 @@ exports.getAllvalidated = async (req, res) => {
 exports.valideLot = async (req, res) => {
     try {
         const {lot} = req.params;
-        const start = new Date(lot);
-        start.setUTCHours(0, 0, 0, 0);
-        // End of day (e.g. 2025-05-01T23:59:59.999Z)
-        const end = new Date(lot);
-        end.setUTCHours(23, 59, 59, 999);
-        
-        const pallets = await Pallet.updateMany({deleted : false ,last_scan: { $gte: start, $lt: end }} , {$set :{current_status : "validated"}});
+
+        const pallets = await Pallet.updateMany({deleted : false ,lot: lot} , {$set :{current_status : "V"}});
         if(pallets.modifiedCount === 0){
             return res.status(404).json({message : "no pallet found for that date"});
         }
@@ -87,6 +112,24 @@ exports.valideLot = async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 }
+// exports.valideLot = async (req, res) => {
+//     try {
+//         const {lot} = req.params;
+//         const start = new Date(lot);
+//         start.setUTCHours(0, 0, 0, 0);
+//         // End of day (e.g. 2025-05-01T23:59:59.999Z)
+//         const end = new Date(lot);
+//         end.setUTCHours(23, 59, 59, 999);
+        
+//         const pallets = await Pallet.updateMany({deleted : false ,last_scan: { $gte: start, $lt: end }} , {$set :{current_status : "V"}});
+//         if(pallets.modifiedCount === 0){
+//             return res.status(404).json({message : "no pallet found for that date"});
+//         }
+//         return res.status(200).json({ message: `✅ ${pallets.modifiedCount} pallet(s) validated.` });
+//     } catch (err) {
+//         return res.status(500).json({ error: err.message });
+//     }
+// }
 
 //get delete all pallets (soft delete)✅
 exports.getDeleteAll = async (req , res) =>{
@@ -101,8 +144,8 @@ exports.getDeleteAll = async (req , res) =>{
 //return a  specified pallet ✅
 exports.getPalette = async (req, res) => {
     try {
-        const {rfid} = req.params;
-        const pallets = await Pallet.findOne({rfid , deleted : false},
+        const {palette_id} = req.params;
+        const pallets = await Pallet.findOne({palette_id , deleted : false},
         );  
         if(!pallets){
             return res.status(404).json("palette not found !");
@@ -116,12 +159,12 @@ exports.getPalette = async (req, res) => {
 //delete a specified pallet (soft delete) ✅
 exports.deletePalette = async (req , res) =>{
     try {
-       const {rfid} = req.params;
-    //    if (isNaN(rfid)) {
-    //     return res.status(400).json({message : "RFID must be a number"});
+       const {palette_id} = req.params;
+    //    if (isNaN(palette_id)) {
+    //     return res.status(400).json({message : "palette_id must be a number"});
     //    }
        const deletePallet = await Pallet.findOneAndUpdate(
-        {rfid}, //the filter
+        {palette_id}, //the filter
         {deleted : true}, //the update
         {new : true} // the option
        );

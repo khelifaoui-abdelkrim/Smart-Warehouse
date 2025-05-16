@@ -11,7 +11,7 @@ const SECRET_KEY = process.env.SECRET_KEY
 
 exports.registerUser = async (req,res) =>{
     try {
-        const {username, password, role} = req.body
+        const {username, password, role,email,phone,name, lastname,validated} = req.body
 
         //check if the user exists
         const existingUser = await User.findOne({username})
@@ -22,7 +22,14 @@ exports.registerUser = async (req,res) =>{
 
         //create new user
         const newUser = new User({
-            username, password : hashedPass, role
+            username, 
+            password : hashedPass, 
+            role,
+            email,
+            phone,
+            name,
+            lastname,
+            validated
         })
         await newUser.save()
         return res.status(201).json({message : "user registred sucessfully "})
@@ -38,22 +45,24 @@ exports.registerUser = async (req,res) =>{
 
 exports.loginUser = async (req,res) =>{
     try {
-        const {username, password} = req.body
+        const {username,email, password} = req.body
 
         //check for the username
-        const user = await User.findOne({username})
+        const user = await User.findOne({
+            $or: [{email},{username}]
+        })
         if(!user){
-            return res.status(400).json({ message: 'not registred, register NOW !' });
+            return res.status(400).json({ message: 'not registred !' });
         }
         //compare the passwords
         const isMatch = await bcrypt.compare(password, user.password)
         if(!isMatch){
-            return res.status(400).json({ message: 'Invalid username or password' });
+            return res.status(400).json({ message: 'Invalid password' });
         }
     
-        //generate JWT token for 2h of session
+        //generate JWT token for 8h of session
         const token = jwt.sign(
-            {userID : user._id, username : user.username, role : user.role},
+            {userID : user._id, username : user.username, email : user.email, role : user.role},
             SECRET_KEY,
             {expiresIn : '8H'}
         )
@@ -69,7 +78,7 @@ exports.loginUser = async (req,res) =>{
 
 exports.getUserProfile = async (req,res) =>{
     try {
-        const user = await User.findById(req.user.userID)
+        const user = await User.find({})
         if(!user){
             return res.status(404).json({message : "no user found ! "})
         }
