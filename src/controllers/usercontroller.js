@@ -73,15 +73,61 @@ exports.loginUser = async (req,res) =>{
 }
 
 /////////////////////////////////////////
-/////get user profile////////////////////
+/////get users////////////////////
 ////////////////////////////////////////
 
-exports.getUserProfile = async (req,res) =>{
+exports.getAllUsers = async (req,res) =>{
     try {
         const user = await User.find({})
         if(!user){
-            return res.status(404).json({message : "no user found ! "})
+            return res.status(404).json({message : "no users found ! "})
         }
+        res.json(user)
+    } catch (err) {
+        return res.status(500).json({message : "server error : ",err})
+    }
+}
+
+/////////////////////////////////////////
+/////get a single user////////////////////
+////////////////////////////////////////
+
+exports.getUserProfile = async (req,res) =>{
+    const {username} = req.params;
+    try {
+        const user = await User.find({username})
+        if(!user){
+            return res.status(404).json({message : "user not found ! "})
+        }
+        res.json(user)
+    } catch (err) {
+        return res.status(500).json({message : "server error : ",err})
+    }
+}
+
+/////////////////////////////////////////
+/////update user////////////////////
+////////////////////////////////////////
+
+exports.updateUser = async (req,res) =>{
+    const {username, password, role,email,phone,name, lastname,validated} = req.params;
+    try {
+        const user = await User.find({username})
+        if(!user){
+            return res.status(404).json({message : "user not found ! "})
+        }
+
+        user.username = username;
+        user.password = password;
+        user.role = role;
+        user.email = email;
+        user.phone = phone;
+        user.name = name;
+        user.lastname = lastname;
+        user.validated = validated;
+
+        await user.save();
+
         res.json(user)
     } catch (err) {
         return res.status(500).json({message : "server error : ",err})
