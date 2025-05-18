@@ -13,6 +13,8 @@ const userShema = new mongoose.Schema({
     phone: { type: Number, required: true, unique: true },
     //password
     password: {type : String ,required: true },
+    //createdAt
+    createdAt: {type : Date ,default : Date.now() },
     //validated or not
     validated: { type: Boolean, default: false },
     //operator

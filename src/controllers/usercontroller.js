@@ -122,7 +122,7 @@ exports.updateUser = async (req,res) =>{
             user.password = await bcrypt.hash(password, 10);
         }
 
-        // Update other fields if provided
+        // Update other fields if provided (we use if to allow empty fields, like updating only username etc..)
         if (username) user.username = username;
         if (role) user.role = role;
         if (email) user.email = email;
