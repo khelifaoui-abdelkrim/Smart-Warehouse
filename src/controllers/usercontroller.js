@@ -110,25 +110,47 @@ exports.getUserProfile = async (req,res) =>{
 ////////////////////////////////////////
 
 exports.updateUser = async (req,res) =>{
-    const {username, password, role,email,phone,name, lastname,validated} = req.params;
+    const {oldUsername} = req.params;
+    const {username, password, role,email,phone,name, lastname,validated} = req.body;
     try {
-        const user = await User.find({username})
+        const user = await User.findOne({username : oldUsername})
         if(!user){
             return res.status(404).json({message : "user not found ! "})
         }
 
-        user.username = username;
-        user.password = password;
-        user.role = role;
-        user.email = email;
-        user.phone = phone;
-        user.name = name;
-        user.lastname = lastname;
-        user.validated = validated;
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        // Update other fields if provided
+        if (username) user.username = username;
+        if (role) user.role = role;
+        if (email) user.email = email;
+        if (phone) user.phone = phone;
+        if (name) user.name = name;
+        if (lastname) user.lastname = lastname;
+        if (typeof validated !== 'undefined') user.validated = validated;
 
         await user.save();
 
         res.json(user)
+    } catch (err) {
+        return res.status(500).json({message : "server error : ",error : err.message})
+    }
+}
+
+/////////////////////////////////////////
+/////delete user////////////////////
+////////////////////////////////////////
+
+exports.deleteUser = async (req,res) =>{
+    const {username} = req.params;
+    try {
+        const user = await User.findOneAndDelete({username})
+        if(!user){
+            return res.status(404).json({message : "user not found ! "})
+        }
+        return res.status(201).json({message : "user deleted succesfully ! "})
     } catch (err) {
         return res.status(500).json({message : "server error : ",err})
     }

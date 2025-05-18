@@ -12,38 +12,38 @@ const router = express.Router();
 ///////////////////////////////////////////////
 
 //register palette ✅
-router.post('/pallete/add', registerPalette);
+router.post('/pallete/add', authMiddleware,registerPalette);
 
 //return a  specified pallet✅
 router.get('/pallete/:palette_id', getPalette);
 
 //update pallets status ✅
-router.put('/pallete/update',updateStatus );
+router.put('/pallete/update', authMiddleware,updateStatus );
 
 //soft delete pallet ✅
-router.put('/pallete/:palette_id', deletePalette);
+router.put('/pallete/:palette_id', authMiddleware, deletePalette);
 
 ///////////////////////////////////////////////
 ///multi palletes////
 ///////////////////////////////////////////////
 
 //return all pallets✅
-router.get('/all',  getAll);
+router.get('/all', authMiddleware, getAll);
 
 //return all deleted pallets✅
-router.get('/alld', getDeleteAll);
+router.get('/alld', authMiddleware,getDeleteAll);
 
 //return all validated pallets✅
-router.get('/allv',  getAllvalidated);router.delete('/all', HdeleteAll);
+router.get('/allv', authMiddleware, getAllvalidated);router.delete('/all', HdeleteAll);
 
-//validate a Lot✅   /validate/03-05-2025 
-router.put('/validate/:lot', valideLot);
+//validate a Lot✅   /validate/25AA123 
+router.put('/validate/:lot', authMiddleware, valideLot);
 
 //soft delete all pallets ✅
-router.put('/all', deleteAll);
+router.put('/all', authMiddleware, deleteAll);
 
 //hard delete all pallets ✅
-router.delete('/all', HdeleteAll);
+router.delete('/all', authMiddleware, HdeleteAll);
 
 
 //restore all pallets ✅

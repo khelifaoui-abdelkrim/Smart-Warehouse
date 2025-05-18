@@ -1,0 +1,16 @@
+# # Node modules
+# node_modules/
+
+# # Environment variables
+# .env
+
+# # Logs
+# *.log
+
+# # IDE files
+# .vscode/
+# *.swp
+
+# # OS files
+# Thumbs.db
+# .DS_Store

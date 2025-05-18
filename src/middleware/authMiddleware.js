@@ -2,6 +2,7 @@
 
 const jwt = require('jsonwebtoken')
 const SECRET_KEY = process.env.SECRET_KEY
+const ESP_SECRET_KEY = process.env.ESP_SECRET_KEY
 
 exports.authMiddleware = (req ,res,next) =>{
     const token = req.header("Authorization") //usually where the client (navigator) puts the token
@@ -9,6 +10,12 @@ exports.authMiddleware = (req ,res,next) =>{
     if(!token){
         return res.status(401).json({message : "no token, acces denied ! "})
     }
+    //verify if the token stands for the esp32
+    if (token === ESP_SECRET_KEY) {
+        req.user = { id: "esp32 RFID module", role: "Production line" }; // optional info
+        return next();
+    }
+
     // verifying if the generated token of login = token on the request header
     try {
         const decodedUser = jwt.verify(token, SECRET_KEY)
