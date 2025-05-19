@@ -3,16 +3,17 @@ const mongoose = require('mongoose');
 //function to generate a lot identifier 
 function idGenerator() {
     const id = (Math.floor(Math.random() * 100000)).toString();
+
     return `PaletteID_${id}`;
 }
 
 const palletShema = new mongoose.Schema({
     //palette_id
-    palette_id: { type: String, required: true, unique: true, default:idGenerator()},
+    palette_id: { type: String, required: true, unique: true, default:idGenerator},
     //location
     location: { type: String,enum:['A','B','C'] , required : true},
     //model
-    model: { type: String,enum:['A','B','C','D','E'] , required : true}, //'0.5M','1M','1.5M','1G','0.33G'
+    model: { type: String, enum:['A','B','C','D','E'] , required : true}, //'0.5M','1M','1.5M','1G','0.33G'
     //lot
     lot: { type: String, required : true},
     //status

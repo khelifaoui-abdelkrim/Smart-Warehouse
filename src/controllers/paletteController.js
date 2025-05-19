@@ -219,3 +219,17 @@ exports.restoreAll = async (req , res) =>{
     }
 }
 
+//model counter✅
+exports.modelCounter = async (req , res) =>{
+    try {
+       const model = req.params.model;
+       const count = await Pallet.countDocuments({model : model});
+       if(count === 0 ){
+        return res.status(404).json({message : "model not available"});
+       }
+       return res.status(200).json({ message: `${count} pallets` });
+
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
