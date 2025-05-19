@@ -12,7 +12,7 @@ const router = express.Router();
 ///////////////////////////////////////////////
 
 //register palette ✅
-router.post('/pallete/add', authMiddleware,registerPalette);
+router.post('/pallete/add',registerPalette);
 
 //return a  specified pallet✅
 router.get('/pallete/:palette_id', getPalette);
@@ -28,7 +28,7 @@ router.put('/pallete/:palette_id', authMiddleware, deletePalette);
 ///////////////////////////////////////////////
 
 //return all pallets✅
-router.get('/all', authMiddleware, getAll);
+router.get('/all', getAll);
 
 //return all deleted pallets✅
 router.get('/alld', authMiddleware,getDeleteAll);

@@ -2,6 +2,7 @@ const Pallet = require('../models/pallet');
 const Config = require('../models/config');
 
 
+
 //function to generate a lot identifier 
 function lotGenerator(fabrication = new Date(),location = "A",model = "A") {
     const year = fabrication.getFullYear().toString().slice(-2); // 25 for example

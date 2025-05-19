@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
+//function to generate a lot identifier 
+function idGenerator() {
+    const id = (Math.floor(Math.random() * 100000)).toString();
+    return `PaletteID_${id}`;
+}
 
 const palletShema = new mongoose.Schema({
     //palette_id
-    palette_id: { type: String, required: true, unique: true},
+    palette_id: { type: String, required: true, unique: true, default:idGenerator()},
     //location
     location: { type: String,enum:['A','B','C'] , required : true},
     //model
