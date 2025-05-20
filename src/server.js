@@ -9,6 +9,8 @@ const pallet_routes = require('./routes/paletteRoutes');
 const user_routes = require('./routes/userRoutes');
 const scanLog_routes = require('./routes/scanLogRoutes');
 const model_routes = require('./routes/pallet_modelroutes');
+const order_routes = require('./routes/orderRoutes');
+
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -35,6 +37,8 @@ app.use('/pallets',pallet_routes); //  this means use all paletteRoutes.js with 
 app.use('/pallets',scanLog_routes);
 app.use('/users',user_routes);
 app.use('/models',model_routes);
+app.use('/orders',order_routes);
+
 
 // Test route
 app.get('/', (req, res) => {

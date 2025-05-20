@@ -13,14 +13,9 @@ const orderShema = new mongoose.Schema({
     //model
     model: { type: String,enum:['A','B','C','D','E'] , required : true}, //'0.5M','1M','1.5M','1G','0.33G'
     //status
-    status: {
-        type: String,
-        enum: ['Pending', 'Validated', 'Shipped', 'Canceled'],
-        default: 'Pending'
-      },
+    status: {type: String, enum: ['Pending', 'Shipped', 'Canceled'], default: 'Pending'},
     //palettes quantity
     quantity : { type: String, required : true},
-
     // List of assigned pallet IDs (added only after validation)
     assignedPallets :{ type : String, default : []}
 

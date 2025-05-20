@@ -5,14 +5,20 @@ const jwt = require('jsonwebtoken')
 //secret key
 const SECRET_KEY = process.env.SECRET_KEY
 
+//function to generate the username 
+function usernameGenerator(name = "",lastname = "") {
+    return `${name}_${lastname}_CEV`.toUpperCase();
+}
+
 /////////////////////////////////////////
 /////register new user (for admins)//////
 ////////////////////////////////////////
 
 exports.registerUser = async (req,res) =>{
     try {
-        const {username, password, role,email,phone,name, lastname,validated} = req.body
+        const {password, role,email,phone,name, lastname,validated} = req.body
 
+        const username = usernameGenerator(name,lastname);
         //check if the user exists
         const existingUser = await User.findOne({username})
         if(existingUser){
@@ -22,7 +28,7 @@ exports.registerUser = async (req,res) =>{
 
         //create new user
         const newUser = new User({
-            username, 
+            username , 
             password : hashedPass, 
             role,
             email,
@@ -35,7 +41,7 @@ exports.registerUser = async (req,res) =>{
         return res.status(201).json({message : "user registred sucessfully "})
 
     } catch (err) {
-        return res.status(500).json({message : "server error : ",err})
+        return res.status(500).json({message : "server error : ",error : err.message})
     }
 }
 
@@ -68,7 +74,7 @@ exports.loginUser = async (req,res) =>{
         )
         res.status(200).json({token, username: user.username, role : user.role})  
     } catch (err) {
-        return res.status(500).json({message : "server error : ",err})
+        return res.status(500).json({message : "server error : ",error : err.message})
     }
 }
 
@@ -84,7 +90,7 @@ exports.getAllUsers = async (req,res) =>{
         }
         res.json(user)
     } catch (err) {
-        return res.status(500).json({message : "server error : ",err})
+        return res.status(500).json({message : "server error : ",error : err.message})
     }
 }
 
@@ -101,7 +107,7 @@ exports.getUserProfile = async (req,res) =>{
         }
         res.json(user)
     } catch (err) {
-        return res.status(500).json({message : "server error : ",err})
+        return res.status(500).json({message : "server error : ",error : err.message})
     }
 }
 
