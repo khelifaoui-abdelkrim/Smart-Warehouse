@@ -4,7 +4,7 @@ const {authMiddleware} = require('../middleware/authMiddleware') // add auth mid
 
 
 
-const {registerPalette,updateStatus, getAll,getDeleteAll,getAllvalidated,valideLot,getPalette,deletePalette,deleteAll,HdeleteAll,restoreAll,modelCounter} = require("../controllers/paletteController");
+const {registerPalette,updateStatus, getAll,getDeleteAll,getAllvalidated,valideLot,getPalette,deletePalette,deleteAll,HdeleteAll,restoreAll,modelCounter,deletePalletOrder,getAllLots} = require("../controllers/paletteController");
 const router = express.Router();
 
 ///////////////////////////////////////////////
@@ -53,5 +53,11 @@ router.put('/alld',authMiddleware, restoreAll);
 
 //restore all pallets ✅
 router.get('/:model', modelCounter); 
+
+//get all lots ✅
+router.get('/lots/all', getAllLots); 
+
+//############################## for orders ##########################/////
+// router.put("/delete/:order_id",deletePalletOrder)
 
 module.exports = router;

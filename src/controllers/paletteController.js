@@ -18,6 +18,8 @@ function lotGenerator(fabrication = new Date(),location = "A",model = "A") {
     return `${year}${location}${model}${dayStr}`;
 }
 
+///################################# Pallets operations #########################################////
+
 //register palette ✅
 exports.registerPalette = async (req,res) =>{
     try{
@@ -98,21 +100,7 @@ exports.getAllvalidated = async (req, res) => {
     }
 }
 
-//validate lot✅
-//validate a lot (a lot is pallets produced on 24h)
-exports.valideLot = async (req, res) => {
-    try {
-        const {lot} = req.params;
 
-        const pallets = await Pallet.updateMany({deleted : false ,lot: lot} , {$set :{current_status : "V"}});
-        if(pallets.modifiedCount === 0){
-            return res.status(404).json({message : "no pallet found for that date"});
-        }
-        return res.status(200).json({ message: `✅ ${pallets.modifiedCount} pallet(s) validated.` });
-    } catch (err) {
-        return res.status(500).json({ error: err.message });
-    }
-}
 // exports.valideLot = async (req, res) => {
 //     try {
 //         const {lot} = req.params;
@@ -179,6 +167,7 @@ exports.deletePalette = async (req , res) =>{
     }
 }
 
+
 //delete all pallets (soft delete) ✅
 exports.deleteAll = async (req , res) =>{
     try {
@@ -233,3 +222,39 @@ exports.modelCounter = async (req , res) =>{
         return res.status(500).json({ error: err.message });
     }
 }
+
+//validate lot✅
+//validate a lot (a lot is pallets produced on 24h)
+exports.valideLot = async (req, res) => {
+    try {
+        const {lot} = req.params;
+
+        const pallets = await Pallet.updateMany({deleted : false ,lot: lot} , {$set :{current_status : "V"}});
+        if(pallets.modifiedCount === 0){
+            return res.status(404).json({message : "no pallets found for that lot"});
+        }
+        return res.status(200).json({ message: `✅ ${pallets.modifiedCount} pallet(s) validated.` });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
+
+// get all lots with info
+exports.getAllLots =  async (req, res) => {
+    try {
+      const lots = await Pallet.aggregate([ // we used aggregate cause it offers several params
+        { $match: { deleted: false } },
+        { 
+          $group: {
+            _id: "$lot",
+            count: { $sum: 1 },
+            status : {$first: "$current_status"},
+            model : {$first: "$model"}
+          }
+        }
+      ]);
+      res.status(200).json(lots);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }

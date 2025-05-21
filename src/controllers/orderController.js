@@ -11,7 +11,7 @@ exports.createOrder = async (req,res) =>{
 
         const availablePallets = await Pallet.find({
             model,
-            current_status: { $in: ['Q', 'QR'] },
+            current_status: { $in: ['V', 'QR'] },
             deleted: false
         }).limit(quantity);
 
@@ -60,5 +60,26 @@ exports.getAllShipped = async (req,res) =>{
         
     } catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+//delete pallets for a specified order (soft delete) ✅
+exports.deletePalletOrder = async (req , res) =>{
+    try {
+       const {order_id} = req.params;
+       const order = await Order.find({order_id})
+
+       const deletePallet = await Pallet.findOneAndUpdate(
+        {palette_id}, //the filter
+        {deleted : true}, //the update
+        {new : true} // the option
+       );
+       if(!deletePallet){
+        return res.status(404).json({message : "pallet not found"});
+       }
+       res.status(200).json({message :"pallet deleted succesfuly !" })
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 }
