@@ -5,12 +5,12 @@ const router = express.Router();
 
 
 //create an order ✅
-router.post("/create",createOrder);
+router.post('/create',authMiddleware,createOrder);
 
 //get all pending orders ✅
-router.get("/all",getAllPending);
+router.get('/pending/all',getAllPending);
 
 //get all shipped orders ✅
-router.get("/all",getAllShipped);
+router.get('/shipped/all',getAllShipped);
 
 module.exports = router;

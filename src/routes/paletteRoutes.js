@@ -28,13 +28,15 @@ router.put('/pallete/:palette_id', authMiddleware, deletePalette);
 ///////////////////////////////////////////////
 
 //return all pallets✅
-router.get('/all', getAll);
+router.get('/all',authMiddleware, getAll);
 
 //return all deleted pallets✅
 router.get('/alld', authMiddleware,getDeleteAll);
 
 //return all validated pallets✅
-router.get('/allv', authMiddleware, getAllvalidated);router.delete('/all', HdeleteAll);
+router.get('/allv', authMiddleware, getAllvalidated);
+
+router.delete('/all', HdeleteAll);
 
 //validate a Lot✅   /validate/25AA123 
 router.put('/validate/:lot', valideLot);

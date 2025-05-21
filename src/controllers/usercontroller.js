@@ -10,15 +10,21 @@ function usernameGenerator(name = "",lastname = "") {
     return `${name}_${lastname}_CEV`.toUpperCase();
 }
 
+//function to generate the email 
+function emailGenerator(name = "",lastname = "") {
+    return `${name}${lastname}@cevital.dz`;
+}
+
 /////////////////////////////////////////
 /////register new user (for admins)//////
 ////////////////////////////////////////
 
 exports.registerUser = async (req,res) =>{
     try {
-        const {password, role,email,phone,name, lastname,validated} = req.body
+        const {password, role,phone,name, lastname,validated} = req.body
 
         const username = usernameGenerator(name,lastname);
+        const email = emailGenerator(name,lastname);
         //check if the user exists
         const existingUser = await User.findOne({username})
         if(existingUser){

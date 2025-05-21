@@ -7,7 +7,7 @@ exports.setPaletteModel = async (req,res) =>{
         if(!model){
             return res.status(400).json({ message: "Model not provided"});
         }
-        let config = await Config.findByIdAndUpdate(
+        let config = await Config.findOneAndUpdate(
             {key : "model"},
             {value : model},
             { new: true, upsert: true }
