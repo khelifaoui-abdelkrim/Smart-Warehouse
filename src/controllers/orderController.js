@@ -66,20 +66,39 @@ exports.getAllShipped = async (req,res) =>{
 //delete pallets for a specified order (soft delete) ✅
 exports.deletePalletOrder = async (req , res) =>{
     try {
-       const {order_id} = req.params;
-       const order = await Order.find({order_id})
+       const {dock} = req.params;
+       const {palette_id} = req.body;
 
-       const deletePallet = await Pallet.findOneAndUpdate(
-        {palette_id}, //the filter
-        {deleted : true}, //the update
-        {new : true} // the option
-       );
-       if(!deletePallet){
-        return res.status(404).json({message : "pallet not found"});
+       const order = await Order.find({assignedPallets : palette_id});
+
+       //first check if the pallet belongs to an order
+       if(!order || order.length === 0){
+        return res.status(404).json({message : "this palette don't belong to any order"});
        }
-       res.status(200).json({message :"pallet deleted succesfuly !" })
+
+       //then check if this order is detected by the right dock
+       const order_dock = order[0].dock;
+       if(order_dock !== dock){
+        return res.status(404).json({message : `wrong dock ${dock} for this pallet ${order_dock}`});
+       }
+
+       //finnaly soft delete the palette
+       const deletePal = await Pallet.findOneAndUpdate(
+        {palette_id, deleted : false},
+        {$set : {deleted : true, last_scan : Date.now()}},
+        {new : true}
+       );
+
+       if(!deletePal){
+        return res.status(404).json({message : "palette not found in DB or already deleted"});
+       }
+
+       res.status(200).json({
+        message :`pallet ${palette_id} deleted succesfuly !` ,
+        dock : order_dock
+       })
 
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({message : "server error : ",error : err.message });
     }
 }

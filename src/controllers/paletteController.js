@@ -101,7 +101,7 @@ exports.getAllvalidated = async (req, res) => {
 }
 
 
-// exports.valideLot = async (req, res) => {
+// exports.changeLotStatus = async (req, res) => {
 //     try {
 //         const {lot} = req.params;
 //         const start = new Date(lot);
@@ -223,23 +223,23 @@ exports.modelCounter = async (req , res) =>{
     }
 }
 
-//validate lot✅
-//validate a lot (a lot is pallets produced on 24h)
-exports.valideLot = async (req, res) => {
+//change lot status ✅
+//change lot status(a lot is pallets produced on 24h)
+exports.changeLotStatus = async (req, res) => {
     try {
-        const {lot} = req.params;
+        const {lot,current_status} = req.body;
 
-        const pallets = await Pallet.updateMany({deleted : false ,lot: lot} , {$set :{current_status : "V"}});
+        const pallets = await Pallet.updateMany({deleted : false ,lot: lot} , {$set :{current_status : current_status}});
         if(pallets.modifiedCount === 0){
-            return res.status(404).json({message : "no pallets found for that lot"});
+            return res.status(404).json({message : "no pallets found for that lot or no status to change"});
         }
-        return res.status(200).json({ message: `✅ ${pallets.modifiedCount} pallet(s) validated.` });
+        return res.status(200).json({ message: `status changed to ${current_status} for ${pallets.modifiedCount} pallet(s)` });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
 }
 
-// get all lots with info
+// get all lots with info ✅
 exports.getAllLots =  async (req, res) => {
     try {
       const lots = await Pallet.aggregate([ // we used aggregate cause it offers several params

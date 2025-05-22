@@ -4,7 +4,7 @@ const {authMiddleware} = require('../middleware/authMiddleware') // add auth mid
 
 
 
-const {registerPalette,updateStatus, getAll,getDeleteAll,getAllvalidated,valideLot,getPalette,deletePalette,deleteAll,HdeleteAll,restoreAll,modelCounter,deletePalletOrder,getAllLots} = require("../controllers/paletteController");
+const {registerPalette,updateStatus, getAll,getDeleteAll,getAllvalidated,changeLotStatus,getPalette,deletePalette,deleteAll,HdeleteAll,restoreAll,modelCounter,deletePalletOrder,getAllLots} = require("../controllers/paletteController");
 const router = express.Router();
 
 ///////////////////////////////////////////////
@@ -28,18 +28,18 @@ router.put('/pallete/:palette_id', authMiddleware, deletePalette);
 ///////////////////////////////////////////////
 
 //return all pallets✅
-router.get('/all',authMiddleware, getAll);
+router.get('/all', getAll);
 
 //return all deleted pallets✅
-router.get('/alld', authMiddleware,getDeleteAll);
+router.get('/alld',getDeleteAll);
 
 //return all validated pallets✅
-router.get('/allv', authMiddleware, getAllvalidated);
+router.get('/allv', getAllvalidated);
 
 router.delete('/all', HdeleteAll);
 
 //validate a Lot✅   /validate/25AA123 
-router.put('/validate/:lot', valideLot);
+router.put('/lots/status/', changeLotStatus);
 
 //soft delete all pallets ✅
 router.put('/all', authMiddleware, deleteAll);

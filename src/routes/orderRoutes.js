@@ -1,6 +1,6 @@
 const express = require('express');
 const {authMiddleware} = require('../middleware/authMiddleware')
-const {createOrder,getAllPending,getAllShipped} = require('../controllers/orderController')
+const {createOrder,getAllPending,getAllShipped,deletePalletOrder} = require('../controllers/orderController')
 const router = express.Router();
 
 
@@ -12,5 +12,8 @@ router.get('/pending/all',getAllPending);
 
 //get all shipped orders ✅
 router.get('/shipped/all',getAllShipped);
+
+//delete a pallet of orders (soft del)  esp32✅
+router.put('/:dock/delete',deletePalletOrder);
 
 module.exports = router;
