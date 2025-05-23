@@ -38,9 +38,6 @@ router.get('/allv', getAllvalidated);
 
 router.delete('/all', HdeleteAll);
 
-//validate a Lot✅   /validate/25AA123 
-router.put('/lots/status/', changeLotStatus);
-
 //soft delete all pallets ✅
 router.put('/all', authMiddleware, deleteAll);
 
@@ -54,10 +51,15 @@ router.put('/alld',authMiddleware, restoreAll);
 //restore all pallets ✅
 router.get('/:model', modelCounter); 
 
+
+
+//############################## lot operations ##########################/////
+
 //get all lots ✅
 router.get('/lots/all', getAllLots); 
 
-//############################## for orders ##########################/////
-// router.put("/delete/:order_id",deletePalletOrder)
+//change Lot status✅  
+router.put('/lots/status/', changeLotStatus);
+
 
 module.exports = router;

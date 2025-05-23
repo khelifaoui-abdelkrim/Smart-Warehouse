@@ -223,12 +223,14 @@ exports.modelCounter = async (req , res) =>{
     }
 }
 
+////####################### lot controller ###############################////////
+
 //change lot status ✅
 //change lot status(a lot is pallets produced on 24h)
 exports.changeLotStatus = async (req, res) => {
     try {
         const {lot,current_status} = req.body;
-
+        
         const pallets = await Pallet.updateMany({deleted : false ,lot: lot} , {$set :{current_status : current_status}});
         if(pallets.modifiedCount === 0){
             return res.status(404).json({message : "no pallets found for that lot or no status to change"});
@@ -246,12 +248,12 @@ exports.getAllLots =  async (req, res) => {
         { $match: { deleted: false } },
         { 
           $group: {
-            _id: "$lot",
+            _id: "$lot", //lot: {$first: "$lot"}, 
             count: { $sum: 1 },
             status : {$first: "$current_status"},
-            model : {$first: "$model"}
+            pallets : {$push : "$palette_id"}
           }
-        }
+        },
       ]);
       res.status(200).json(lots);
     } catch (err) {

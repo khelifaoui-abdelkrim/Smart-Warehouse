@@ -18,6 +18,8 @@ const palletShema = new mongoose.Schema({
     lot: { type: String, required : true},
     //status
     current_status: {type : String ,enum: ['Q', 'QR', 'V', 'R'], default: 'Q'},
+    //ordered ?
+    ordered: {type : Boolean , default : false},
     //fabrication date
     fabrication: { type: Date, default : Date.now() },
     //expiration date
