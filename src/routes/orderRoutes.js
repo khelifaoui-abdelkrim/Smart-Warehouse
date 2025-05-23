@@ -13,7 +13,7 @@ router.get('/pending/all',getAllPending);
 //get all shipped orders ✅
 router.get('/shipped/all',getAllShipped);
 
-//delete a pallet of orders (soft del)  esp32✅
+//delete a pallet of orders (soft del)  esp32✅ pour karim
 router.put('/:dock/delete',deletePalletOrder);
 
 //get shipping progress for an order✅

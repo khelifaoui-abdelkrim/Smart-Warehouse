@@ -3,17 +3,17 @@ const Config = require('../models/config');
 //set palette model
 exports.setPaletteModel = async (req,res) =>{
     try{
-        const {model} = req.body;
+        const {line,model} = req.body;
         if(!model){
             return res.status(400).json({ message: "Model not provided"});
         }
         let config = await Config.findOneAndUpdate(
-            {key : "model"},
+            {key : line},
             {value : model},
             { new: true, upsert: true }
         )
         return res.status(200).json(
-            { message: `Model updated succefully to : , ${model}`,
+            { message: `Model updated succefully to : , ${model} on the line : ${line}`,
             model : config.value
             }
         );
@@ -26,7 +26,7 @@ exports.setPaletteModel = async (req,res) =>{
 //get palette model
 exports.getPaletteModel = async (req,res) =>{
     try{
-        let config = await Config.findOne({key : "model"});
+        let config = await Config.find({key : "model"}); //line A/B/C
         if(!config){
             //set default value
             config  = new Config({key : "model", value: "A"});
