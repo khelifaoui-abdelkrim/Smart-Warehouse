@@ -40,15 +40,35 @@ exports.setPaletteModel = async (req, res) => {
 exports.getPaletteModel = async (req,res) =>{
     try{
         const {line} = req.params;
-
+        const currentLine = `line_${line}`;
         let config = await Config.findOne({key : "line_models"}); //line A/B/C
 
-        if(!config || !config.value[line]){
-            return res.status(404).json({ message: `model are not setted on ${line}` });
+        if(!config || !config.value.get(currentLine)){
+            return res.status(404).json({ message: `model are not setted on ${currentLine}` });
         }
-        return res.status(200).json({ message: "current model : ", model : config.value[line] });
+        return res.status(200).json({ message: `current model for ${currentLine} : `, model : config.value.get(currentLine) });
     }
     catch(err){
         return res.status(500).json(err.message);
     }
+}
+
+//get all models
+exports.getAllModels = async (req,res) =>{
+  try{
+      let config = await Config.findOne({key :"line_models"}); //line A/B/C
+
+      if(!config){
+          res.status(404).json({ message: `there is no model setted` });
+          //set models by default
+          config = new Config({
+            key: "line_models",
+            value: new Map([["line_A", "A"],["line_B", "A"],["line_C", "A"]])
+          });
+      }
+      return res.status(200).json({ message: "current models : ", models : config.value });
+  }
+  catch(err){
+      return res.status(500).json(err.message);
+  }
 }
