@@ -5,7 +5,7 @@ const configShema = new mongoose.Schema({
     //the key, it must be "model", to desting from further config in this file
     key : {type : String , required : true, unique : true},
     //set the value of productio
-    value : {type : String, required : true}
+    value : {type : Map, of : String, default : {} ,required : true}
 },
 { versionKey: false }//  This removes __v)
 );

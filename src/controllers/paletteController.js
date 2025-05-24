@@ -25,13 +25,13 @@ exports.registerPalette = async (req,res) =>{
     try{
         const {palette_id,location} = req.body;
         let pallete = await Pallet.findOne({palette_id ,deleted : false});
-        let config = await Config.findOne({key :"model"}); // get the model form the config collection
+        let config = await Config.findOne({key :"line_models"}); // get the model form the config collection
 
         if(pallete){
             return res.status(400).json({ message: "Pallet already exists" });
         }
         //get the current model 
-        const model = config.value;
+        const model = config.value.get["line_A"];
 
         //define expiration and fabrication date
         const fabricationDate = new Date();
