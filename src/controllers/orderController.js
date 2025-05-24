@@ -38,7 +38,7 @@ exports.createOrder = async (req,res) =>{
             gatheredProducts.push({
                 model,
                 quantity,
-                assignedPallets
+                assignedPallets : []
             })
         }
 
@@ -88,46 +88,59 @@ exports.deletePalletOrder = async (req , res) =>{
        const {dock} = req.params;
        const {palette_id} = req.body;
        
-       const order = await Order.findOne({'products.assignedPallets' : palette_id});
-
-       //1-first check if the pallet belongs to an order
-       if(!order){
-        return res.status(404).json({message : "this palette don't belong to any order"});
-       }
-
-       //2-then check if this order is detected by the right dock
-       const order_dock = order.dock;
-       if(order_dock !== dock){
-        return res.status(404).json({message : `wrong dock ${dock} for this pallet ${order_dock}`});
-       }
-
-       //3- soft delete the palette
-       const deletePal = await Pallet.findOneAndUpdate(
-        {palette_id, deleted : false},
-        {$set : {deleted : true, last_scan : Date.now()}},
-        {new : true}
-       );
-
-       if(!deletePal){
-        return res.status(404).json({message : "palette not found in DB or already deleted"});
-       }
-
-       const totalAssignedPAllets = order.products.flatMap(p => p.assignedPallets);
-       //4-ckeck if there is remaining pallets not deleted in the order to mark it as valid
-       const orderValidated = await Pallet.find({
-        palette_id : {$in: totalAssignedPAllets},
+       const pallet = await Pallet.findOne({
+        palette_id,
         deleted : false
        })
 
-       if(orderValidated.length === 0){
+
+       //1-first check if the pallet exists
+       if (!pallet) {
+        return res.status(404).json({ message: "Pallet not found or already deleted" });
+       }
+
+       //extract the pallete model 
+       const { model } = pallet;
+
+       const order = await Order.findOne({
+        dock,
+        status : "Pending",
+        "products.model" : model
+       });
+
+       //2-check if the order is shipped or not correstponding to the pallet
+       if(!order){
+        return res.status(404).json({message : "this palette cant be assigned to this order"});
+       }
+
+       //3-find the matching assert for the pallete in the order
+
+       const product = order.products.find(p => p.model === model)
+
+       if(!product || product.assignedPallets.length >= product.quantity){
+        return res.status(404).json({message : `Order at dock ${dock} has already all pallets for the model ${model}, or its already shipped`});
+       }
+
+       //4-so now we can delete the pallete and assert it to the order
+       pallet.deleted = true;
+       pallet.last_scan = Date.now();
+       await pallet.save();
+
+       product.assignedPallets.push(palette_id)
+
+       //5- check if the order is fully assigned to mark it as "shipped"
+       const allAssigned = order.products.every(p => p.assignedPallets.length === Number(p.quantity));
+
+       if(allAssigned){
         order.status = "Shipped";
         order.shippedAt = Date.now();
-        await order.save();
        }
-       
+       await order.save();
+
        return res.status(200).json({
         message :`pallet ${palette_id} deleted succesfuly !` ,
-        dock : order_dock,
+        dock ,
+        assignedToOrder: order.order_id,
         orderStatus : order.status
        })
 
@@ -150,7 +163,7 @@ exports.getShippingProgress = async (req,res) =>{
         // const allAssignedPallets = findOrder.products.flatMap(product => product.assignedPallets);
 
         const totalPallets =  findOrder.products.flatMap(p => p.assignedPallets)
-
+        const totalQuantity = findOrder.products.reduce((sum, product) => sum + parseInt(product.quantity), 0);
         const deletdPallets = await Pallet.find({
             palette_id : {$in: totalPallets},
             deleted :true
@@ -162,7 +175,7 @@ exports.getShippingProgress = async (req,res) =>{
         })
 
         return res.status(200).json({
-            message : `progress : ${deletdPallets.length}/${totalPallets.length} `,
+            message : `progress : ${deletdPallets.length}/${totalQuantity} `,
             remainingPallets : remainingPallets.map(p => p.palette_id)
         });
     } catch (error) {

@@ -28,7 +28,7 @@ const orderShema = new mongoose.Schema({
             //palettes quantity
             quantity : { type: String, required : true},
             // List of assigned pallet IDs (added only after validation)
-            assignedPallets :{ type : [String], default : []}
+            assignedPallets :{ type : [String]}
         }
     ],
     //status
