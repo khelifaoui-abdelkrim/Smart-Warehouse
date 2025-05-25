@@ -11,6 +11,16 @@ exports.createOrder = async (req,res) =>{
 
         //first get the products content 
         const gatheredProducts = [];
+
+        //get the count of pallets ordered on pending orders
+        const pending = await Order.find({status : "Pending"});
+        let reservedCount = 0;
+        for(const order of pending){
+            for(const product of order){
+                reservedCount += product.quantity; 
+            }
+        }
+
         
         for(const product of products){
             const {model, quantity} = product;
@@ -18,14 +28,15 @@ exports.createOrder = async (req,res) =>{
             const availablePallets = await Pallet.find({
                 model,
                 current_status: { $in: ['V', 'QR'] },
-                ordered : false,
+                // ordered : false,
                 deleted: false
             }).limit(quantity);
 
             //verify if there is enough pallets
-            if(availablePallets.length < quantity){
+            if((availablePallets.length) - reservedCount < quantity){
                 return res.status(400).json({ message: 'Not enough pallets available/valide to fulfill the order.' });
             }
+        }
 
             const assignedPallets = availablePallets.map(p => p.palette_id); //selected pallets to ship
 
@@ -40,7 +51,6 @@ exports.createOrder = async (req,res) =>{
                 quantity,
                 assignedPallets : []
             })
-        }
 
         //now create the order
         const newOrder = new Order({
