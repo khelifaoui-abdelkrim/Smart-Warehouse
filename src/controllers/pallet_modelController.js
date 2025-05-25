@@ -8,20 +8,18 @@ exports.setPaletteModel = async (req, res) => {
       if (!line || !model) {
         return res.status(400).json({ message: "Model or line not provided" });
       }
-  
-      const currentLine = `line_${line}`;
-  
+    
       let config = await Config.findOne({ key: "line_models" });
   
       if (!config) {
         // First entry: create new config
         config = new Config({
           key: "line_models",
-          value: new Map([[currentLine, model]])
+          value: new Map([[line, model]])
         });
       } else {
         // Update or add the line
-        config.value.set(currentLine,model);
+        config.value.set(line,model);
       }
   
       await config.save();
@@ -40,13 +38,12 @@ exports.setPaletteModel = async (req, res) => {
 exports.getPaletteModel = async (req,res) =>{
     try{
         const {line} = req.params;
-        const currentLine = `line_${line}`;
         let config = await Config.findOne({key : "line_models"}); //line A/B/C
 
-        if(!config || !config.value.get(currentLine)){
-            return res.status(404).json({ message: `model are not setted on ${currentLine}` });
+        if(!config || !config.value.get(line)){
+            return res.status(404).json({ message: `model are not setted on ${line}` });
         }
-        return res.status(200).json({ message: `current model for ${currentLine} : `, model : config.value.get(currentLine) });
+        return res.status(200).json({ message: `current model for ${line} : `, model : config.value.get(line) });
     }
     catch(err){
         return res.status(500).json(err.message);
@@ -59,13 +56,17 @@ exports.getAllModels = async (req,res) =>{
       let config = await Config.findOne({key :"line_models"}); //line A/B/C
 
       if(!config){
-          res.status(404).json({ message: `there is no model setted` });
           //set models by default
           config = new Config({
             key: "line_models",
-            value: new Map([["line_A", "A"],["line_B", "A"],["line_C", "A"]])
+            value: {
+              A: "A",
+              B: "A",
+              C: "A"
+            }
           });
       }
+      await config.save();
       return res.status(200).json({ message: "current models : ", models : config.value });
   }
   catch(err){

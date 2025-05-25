@@ -23,7 +23,7 @@ function lotGenerator(fabrication = new Date(),location = "A",model = "A") {
 //register palette ✅
 exports.registerPalette = async (req,res) =>{
     try{
-        const {palette_id,location,line} = req.body;
+        const {palette_id,location} = req.body;
         let pallete = await Pallet.findOne({palette_id ,deleted : false});
         let config = await Config.findOne({key :"line_models"}); // get the model form the config collection
 
@@ -31,7 +31,7 @@ exports.registerPalette = async (req,res) =>{
             return res.status(400).json({ message: "Pallet already exists" });
         }
         //get the current model 
-        const model = config.value.get(line);
+        const model = config.value.get(location);
 
         //define expiration and fabrication date
         const fabricationDate = new Date();
