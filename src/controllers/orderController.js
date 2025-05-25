@@ -12,18 +12,20 @@ exports.createOrder = async (req,res) =>{
         //first get the products content 
         const gatheredProducts = [];
 
-        //get the count of pallets ordered on pending orders
         const pending = await Order.find({status : "Pending"});
-        let reservedCount = 0;
-        for(const order of pending){
-            for(const product of order){
-                reservedCount += product.quantity; 
-            }
-        }
-
-        
         for(const product of products){
             const {model, quantity} = product;
+
+            //get the count of pallets ordered on pending orders
+            let reservedCount = 0;
+
+            for(const order of pending){
+                const matchingProducts = order.products.find(p => p.model === model);
+                if(matchingProducts){
+                    reservedCount += matchingProducts.quantity - matchingProducts.assignedPallets.length;
+                }
+            }           
+
             //find available pallets for this model
             const availablePallets = await Pallet.find({
                 model,
@@ -32,14 +34,13 @@ exports.createOrder = async (req,res) =>{
                 deleted: false
             }).limit(quantity);
 
+            const availableCount = (availablePallets.length) - reservedCount ;
             //verify if there is enough pallets
-            if((availablePallets.length) - reservedCount < quantity){
+            if(availableCount < quantity){
                 return res.status(400).json({ message: 'Not enough pallets available/valide to fulfill the order.' });
             }
-        }
 
             const assignedPallets = availablePallets.map(p => p.palette_id); //selected pallets to ship
-
             //now we should first change the ordered status to true
             await Pallet.updateMany(
                 {palette_id : {$in : assignedPallets} },
@@ -51,6 +52,7 @@ exports.createOrder = async (req,res) =>{
                 quantity,
                 assignedPallets : []
             })
+        }
 
         //now create the order
         const newOrder = new Order({
@@ -189,6 +191,23 @@ exports.getShippingProgress = async (req,res) =>{
             remainingPallets : remainingPallets.map(p => p.palette_id)
         });
     } catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+//get shipping porgress of an order
+exports.getAvailablePalleteModel = async (req,res) =>{
+    try {
+        const {model} = req.params;
+        const allPallets = await Pallet.find({deleted : false, model : model})
+        const taken = await Pallet.find({ordered : true, deleted : false , model : model})
+
+        const total = allPallets.length - taken.length;
+        
+        if(total === 0){
+            return res.status(404).json({message : `no pallets available for the model ${model}`})
+        }
+        return res.status(200).json({message : `available ${total} pallets for the model ${model}`})
+    }catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
     }
 }

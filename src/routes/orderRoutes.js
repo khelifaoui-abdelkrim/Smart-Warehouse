@@ -1,6 +1,6 @@
 const express = require('express');
 const {authMiddleware} = require('../middleware/authMiddleware')
-const {createOrder,getAllPending,getAllShipped,deletePalletOrder,getShippingProgress} = require('../controllers/orderController')
+const {createOrder,getAllPending,getAllShipped,deletePalletOrder,getShippingProgress,getAvailablePalleteModel} = require('../controllers/orderController')
 const router = express.Router();
 
 
@@ -18,4 +18,8 @@ router.put('/:dock/delete',deletePalletOrder);
 
 //get shipping progress for an order✅
 router.get('/progress/:order_id',getShippingProgress);
+
+//get available pallets for all models✅
+router.get('/pallets/available/:model',getAvailablePalleteModel);
+
 module.exports = router;
