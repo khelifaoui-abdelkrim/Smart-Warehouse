@@ -2,7 +2,9 @@ const Pallet = require('../models/pallet')
 const Order = require('../models/order');
 const { getDeleteAll } = require('./paletteController');
 
-//create an order
+/////////////////////////////////////////////////////////////
+//create an order✅
+/////////////////////////////////////////////////////////////
 exports.createOrder = async (req,res) =>{
 
     try {
@@ -40,8 +42,8 @@ exports.createOrder = async (req,res) =>{
             if(availableCount < quantity){
                 return res.status(400).json({ message: 'Not enough pallets available/valide to fulfill the order.' });
             }
-
-            const assignedPallets = availablePallets.map(p => p.palette_id); //selected pallets to ship
+            const selectedPallets = availablePallets.slice(0,quantity)
+            const assignedPallets = selectedPallets.map(p => p.palette_id); //selected pallets to ship
             //now we should first change the ordered status to true
             await Pallet.updateMany(
                 {palette_id : {$in : assignedPallets} },
@@ -64,7 +66,6 @@ exports.createOrder = async (req,res) =>{
         })
 
         await newOrder.save();
-        reservedCount = 0;
         return res.status(201).json({ message: 'Order created and validated.', order: newOrder });
 
     } catch (error) {
@@ -72,30 +73,10 @@ exports.createOrder = async (req,res) =>{
     }
 }
 
-
-//get all pending orders 
-exports.getAllPending = async (req,res) =>{
-    try {
-        const getAll = await Order.find({status : "Pending"})
-        return res.status(200).json(getAll);
-
-    } catch (error) {
-        return res.status(500).json({message : "server error : ",error : error.message})
-    }
-}
-
-//get all shipped orders 
-exports.getAllShipped = async (req,res) =>{
-    try {
-        const getAll = await Order.find({status : "Shipped"})
-        return res.status(200).json(getAll);
-        
-    } catch (error) {
-        return res.status(500).json({message : "server error : ",error : error.message})
-    }
-}
-//dagi vedel assigned pallets
+/////////////////////////////////////////////////////////////
 //delete pallets for a specified order (soft delete) ✅
+/////////////////////////////////////////////////////////////
+
 exports.deletePalletOrder = async (req , res) =>{
     try {
        const {dock} = req.params;
@@ -162,7 +143,109 @@ exports.deletePalletOrder = async (req , res) =>{
     }
 }
 
-//get shipping porgress of an order
+/////////////////////////////////////////////////////////////
+//cancel an order✅ (mark as canceled)
+/////////////////////////////////////////////////////////////
+
+exports.cancelOrder= async (req , res) =>{
+    try {
+        const {order_id} = req.params;
+        const order = await Order.findOne({order_id ,status : "Pending"});
+        //check if the order exists                                    
+        if(!order){
+            return res.status(404).json({message : `the order ${order_id} not exists or already shipped `});
+        }
+        
+        //check for assigned pallets
+        for(const product of order.products){
+            const {model,quantity,assignedPallets = []} = product;
+
+            //1-check if there is assigned pallets
+            if(assignedPallets.length > 0){
+                await Pallet.updateMany(
+                    {palette_id : {$in : assignedPallets}},
+                    {$set : {deleted : false , ordered : false}}
+                )
+            }
+
+            //2-check for not assigned pallets to mark them as not ordered
+            const remainingToRestore = quantity - assignedPallets.length;
+            
+            if(remainingToRestore > 0){
+                const unassignedOrderedPallets = await Pallet.find({
+                    model,
+                    ordered : true,
+                    palette_id : {$nin : assignedPallets},
+                    deleted : false
+                }).limit(remainingToRestore);
+
+                const restoreUnassignedOrderedPallets = unassignedOrderedPallets.map(p => p.palette_id);
+
+                if(restoreUnassignedOrderedPallets.length > 0){
+                    await Pallet.updateMany(
+                        {palette_id : {$in :restoreUnassignedOrderedPallets }},
+                        {$set : {ordered : false}}
+                    )
+                }
+
+            }
+        }
+
+        //finnaly cancel the order
+        order.status = "Canceled";
+        await order.save();
+        return res.status(200).json({message : `the order ${order_id} is deleted succefully`});
+    
+        
+    }catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+/////////////////////////////////////////////////////////////
+//get all pending orders ✅
+/////////////////////////////////////////////////////////////
+
+exports.getAllPending = async (req,res) =>{
+    try {
+        const getAll = await Order.find({status : "Pending"})
+        return res.status(200).json(getAll);
+
+    } catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+/////////////////////////////////////////////////////////////
+//get all shipped orders ✅
+/////////////////////////////////////////////////////////////
+
+exports.getAllShipped = async (req,res) =>{
+    try {
+        const getAll = await Order.find({status : "Shipped"})
+        return res.status(200).json(getAll);
+        
+    } catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+//get all canceled orders 
+exports.getAllCanceled = async (req,res) =>{
+    try {
+        const getAll = await Order.find({status : "Canceled"})
+        return res.status(200).json(getAll);
+        
+    } catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+
+/////////////////////////////////////////////////////////////
+//get shipping porgress of an order✅
+/////////////////////////////////////////////////////////////
+
 exports.getShippingProgress = async (req,res) =>{
     try {
         const {order_id} = req.params;
@@ -195,7 +278,10 @@ exports.getShippingProgress = async (req,res) =>{
     }
 }
 
-//get shipping porgress of an order
+/////////////////////////////////////////////////////////////
+//get shipping porgress of an order✅
+/////////////////////////////////////////////////////////////
+
 exports.getAvailablePalleteModel = async (req,res) =>{
     try {
         const {model} = req.params;
@@ -213,18 +299,22 @@ exports.getAvailablePalleteModel = async (req,res) =>{
     }
 }
 
+/////////////////////////////////////////////////////////////
+//get orders which have pallets of a specified lot✅
+/////////////////////////////////////////////////////////////
 
-//cancel an orderissues
-exports.cancelOrder= async (req , res) =>{
+exports.getAssigned = async (req,res) =>{
     try {
-        const {order_id} = req.params;
-        const orders = await Order.find({order_id ,status : "Pending"});
+        const {lot} = req.params;
+        const allPallets = await Pallet.find({deleted : false, model : model})
+        const taken = await Pallet.find({ordered : true, deleted : false , model : model})
 
-        if(!orders){
-            return res.status(404).json({message : `the order ${order_id} not exists or already shipped `});
-        }
-
+        const total = allPallets.length - taken.length;
         
+        if(total === 0){
+            return res.status(404).json({message : `no pallets available for the model ${model}`})
+        }
+        return res.status(200).json({message : `available ${total} pallets for the model ${model}`})
     }catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
     }

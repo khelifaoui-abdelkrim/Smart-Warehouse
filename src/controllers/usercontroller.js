@@ -76,7 +76,7 @@ exports.loginUser = async (req,res) =>{
         const token = jwt.sign(
             {userID : user._id, username : user.username, email : user.email, role : user.role},
             SECRET_KEY,
-            {expiresIn : '8H'}
+            {expiresIn : '8000H'}
         )
         res.status(200).json({token, username: user.username, role : user.role})  
     } catch (err) {
