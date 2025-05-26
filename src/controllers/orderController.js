@@ -21,8 +21,9 @@ exports.createOrder = async (req,res) =>{
 
             for(const order of pending){
                 const matchingProducts = order.products.find(p => p.model === model);
+                const assigned = matchingProducts.assignedPallets || [];
                 if(matchingProducts){
-                    reservedCount += matchingProducts.quantity - matchingProducts.assignedPallets.length;
+                    reservedCount += matchingProducts.quantity - assigned.length;
                 }
             }           
 
@@ -32,7 +33,7 @@ exports.createOrder = async (req,res) =>{
                 current_status: { $in: ['V', 'QR'] },
                 // ordered : false,
                 deleted: false
-            }).limit(quantity);
+            });
 
             const availableCount = (availablePallets.length) - reservedCount ;
             //verify if there is enough pallets
@@ -63,8 +64,8 @@ exports.createOrder = async (req,res) =>{
         })
 
         await newOrder.save();
-
-        res.status(201).json({ message: 'Order created and validated.', order: newOrder });
+        reservedCount = 0;
+        return res.status(201).json({ message: 'Order created and validated.', order: newOrder });
 
     } catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
@@ -187,13 +188,13 @@ exports.getShippingProgress = async (req,res) =>{
         })
 
         return res.status(200).json({
-            message : `progress : ${deletdPallets.length}/${totalQuantity} `,
-            remainingPallets : remainingPallets.map(p => p.palette_id)
+            message : `progress : ${deletdPallets.length}/${totalQuantity} `
         });
     } catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
     }
 }
+
 //get shipping porgress of an order
 exports.getAvailablePalleteModel = async (req,res) =>{
     try {
@@ -207,6 +208,23 @@ exports.getAvailablePalleteModel = async (req,res) =>{
             return res.status(404).json({message : `no pallets available for the model ${model}`})
         }
         return res.status(200).json({message : `available ${total} pallets for the model ${model}`})
+    }catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+
+//cancel an orderissues
+exports.cancelOrder= async (req , res) =>{
+    try {
+        const {order_id} = req.params;
+        const orders = await Order.find({order_id ,status : "Pending"});
+
+        if(!orders){
+            return res.status(404).json({message : `the order ${order_id} not exists or already shipped `});
+        }
+
+        
     }catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
     }

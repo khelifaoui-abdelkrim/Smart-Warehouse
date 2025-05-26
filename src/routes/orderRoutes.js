@@ -1,6 +1,6 @@
 const express = require('express');
 const {authMiddleware} = require('../middleware/authMiddleware')
-const {createOrder,getAllPending,getAllShipped,deletePalletOrder,getShippingProgress,getAvailablePalleteModel} = require('../controllers/orderController')
+const {createOrder,getAllPending,getAllShipped,deletePalletOrder,getShippingProgress,getAvailablePalleteModel,cancelOrder} = require('../controllers/orderController')
 const router = express.Router();
 
 
@@ -21,5 +21,8 @@ router.get('/progress/:order_id',getShippingProgress);
 
 //get available pallets for all models✅
 router.get('/pallets/available/:model',getAvailablePalleteModel);
+
+//get available pallets for all models✅
+router.get('/cancel/:order',cancelOrder);
 
 module.exports = router;
