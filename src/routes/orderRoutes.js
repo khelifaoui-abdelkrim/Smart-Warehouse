@@ -1,6 +1,6 @@
 const express = require('express');
 const {authMiddleware} = require('../middleware/authMiddleware')
-const {createOrder,getAll,getOrder,getAllPending,getAllShipped,deletePalletOrder,getShippingProgress,getAvailablePalleteModel,cancelOrder,getAllCanceled,getAssigned} = require('../controllers/orderController')
+const {createOrder,getAllOrders,getOrder,getAllPending,getAllShipped,deletePalletOrder,getShippingProgress,getAvailablePalleteModel,cancelOrder,getAllCanceled,getAssigned} = require('../controllers/orderController')
 const router = express.Router();
 
 
@@ -14,7 +14,7 @@ router.put('/:dock/delete',deletePalletOrder);
 router.put('/cancel/:order_id',cancelOrder);
 
 //get all  orders ✅
-router.get('/all',getAll);
+router.get('/all',getAllOrders);
 
 //get order by id ✅
 router.get('/order/:order_id',getOrder);

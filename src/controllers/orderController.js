@@ -206,7 +206,7 @@ exports.cancelOrder= async (req , res) =>{
 //get all orders✅
 /////////////////////////////////////////////////////////////
 
-exports.getAll = async (req,res) =>{
+exports.getAllOrders = async (req,res) =>{
     try {
         const allOrders = await Order.find({}); //get all orders
 
@@ -335,15 +335,13 @@ exports.getShippingProgress = async (req,res) =>{
         for(const product of products ){
             const {model, quantity, assignedPallets} = product;
             
-            const shippedCount = assignedPallets.length;
+            const shippedCount = String(assignedPallets.length);
             const totalCount =  quantity;
 
 
         progress.push({
             model,
-            shipped : shippedCount,
-            total : shippedCount,
-            progress : `${shippedCount}/${shippedCount}`
+            progress : `${shippedCount}/${totalCount}`
         })
         }
         return res.status(200).json({
