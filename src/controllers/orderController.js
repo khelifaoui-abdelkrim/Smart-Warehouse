@@ -277,6 +277,42 @@ exports.getAllCanceled = async (req,res) =>{
 }
 
 
+// /////////////////////////////////////////////////////////////
+// //get shipping porgress of an order✅
+// /////////////////////////////////////////////////////////////
+
+// exports.getShippingProgress = async (req,res) =>{
+//     try {
+//         const {order_id} = req.params;
+
+//         const findOrder = await Order.findOne({order_id});
+//         if(findOrder.length === 0){
+//             return res.status(404).json({message : "no order found"});
+//         }
+
+//         // Step 1: Flatten all assigned pallet IDs from all products
+//         // const allAssignedPallets = findOrder.products.flatMap(product => product.assignedPallets);
+        
+//         const totalPallets =  findOrder.products.flatMap(p => p.assignedPallets)
+//         const totalQuantity = findOrder.products.reduce((sum, product) => sum + parseInt(product.quantity), 0);
+//         const deletdPallets = await Pallet.find({
+//             palette_id : {$in: totalPallets},
+//             deleted :true
+//         })
+        
+//         const remainingPallets = await Pallet.find({
+//             palette_id : {$in: totalPallets},
+//             deleted :false
+//         })
+
+//         return res.status(200).json({
+//             message : `progress : ${deletdPallets.length}/${totalQuantity} `
+//         });
+//     } catch (error) {
+//         return res.status(500).json({message : "server error : ",error : error.message})
+//     }
+// }
+
 /////////////////////////////////////////////////////////////
 //get shipping porgress of an order✅
 /////////////////////////////////////////////////////////////
@@ -286,36 +322,41 @@ exports.getShippingProgress = async (req,res) =>{
         const {order_id} = req.params;
 
         const findOrder = await Order.findOne({order_id});
-        if(findOrder.length === 0){
+        if(!findOrder){
             return res.status(404).json({message : "no order found"});
         }
 
         // Step 1: Flatten all assigned pallet IDs from all products
         // const allAssignedPallets = findOrder.products.flatMap(product => product.assignedPallets);
+        const products = findOrder.products;
 
-        const totalPallets =  findOrder.products.flatMap(p => p.assignedPallets)
-        const totalQuantity = findOrder.products.reduce((sum, product) => sum + parseInt(product.quantity), 0);
-        const deletdPallets = await Pallet.find({
-            palette_id : {$in: totalPallets},
-            deleted :true
-        })
-        
-        const remainingPallets = await Pallet.find({
-            palette_id : {$in: totalPallets},
-            deleted :false
-        })
+        const progress = [];
 
+        for(const product of products ){
+            const {model, quantity, assignedPallets} = product;
+            
+            const shippedCount = assignedPallets.length;
+            const totalCount =  quantity;
+
+
+        progress.push({
+            model,
+            shipped : shippedCount,
+            total : shippedCount,
+            progress : `${shippedCount}/${shippedCount}`
+        })
+        }
         return res.status(200).json({
-            message : `progress : ${deletdPallets.length}/${totalQuantity} `
+            message : `progress : `,progress
         });
+        
     } catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
     }
 }
 
 /////////////////////////////////////////////////////////////
-//get shipping porgress of an order✅
-/////////////////////////////////////////////////////////////
+//get available pallets for a model✅/////////////////////////////////////////////////////////////
 
 exports.getAvailablePalleteModel = async (req,res) =>{
     try {

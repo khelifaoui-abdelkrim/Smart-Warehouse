@@ -19,7 +19,6 @@ router.get('/all',getAll);
 //get order by id ✅
 router.get('/order/:order_id',getOrder);
 
-
 //get all pending orders ✅
 router.get('/pending/all',getAllPending);
 
@@ -32,7 +31,7 @@ router.get('/canceled/all',getAllCanceled);
 //get shipping progress for an order✅
 router.get('/progress/:order_id',getShippingProgress);
 
-//get available pallets for all models✅
+//get available pallets for a model✅
 router.get('/pallets/available/:model',getAvailablePalleteModel);
 
 //get orders which have pallets of a specified lot✅
