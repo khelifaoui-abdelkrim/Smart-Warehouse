@@ -203,6 +203,41 @@ exports.cancelOrder= async (req , res) =>{
 }
 
 /////////////////////////////////////////////////////////////
+//get all orders✅
+/////////////////////////////////////////////////////////////
+
+exports.getAll = async (req,res) =>{
+    try {
+        const allOrders = await Order.find({}); //get all orders
+
+        if(allOrders === 0){ // not !order cause its an array 
+            return res.status(404).json({message : `no orders found `})
+        }
+        return res.status(200).json({message : `found ${allOrders.length} ` ,allOrders})
+    }catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+/////////////////////////////////////////////////////////////
+//get order by id✅
+/////////////////////////////////////////////////////////////
+
+exports.getOrder = async (req,res) =>{
+    try {
+        const {order_id} =  req.params;
+        const order = await Order.findOne({order_id});
+
+        if(!order){ // not !order cause its an array
+            return res.status(404).json({message : `no order found with the id ${order_id}`})
+        }
+        return res.status(200).json({order})
+    }catch (error) {
+        return res.status(500).json({message : "server error : ",error : error.message})
+    }
+}
+
+/////////////////////////////////////////////////////////////
 //get all pending orders ✅
 /////////////////////////////////////////////////////////////
 
@@ -321,3 +356,4 @@ exports.getAssigned = async (req,res) =>{
         return res.status(500).json({message : "server error : ",error : error.message})
     }
 }
+
