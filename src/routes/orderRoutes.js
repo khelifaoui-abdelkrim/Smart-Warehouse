@@ -28,7 +28,7 @@ router.get('/progress/:order_id',getShippingProgress);
 //get available pallets for all models✅
 router.get('/pallets/available/:model',getAvailablePalleteModel);
 
-//get pallets assigned to an order by lot✅
+//get orders which have pallets of a specified lot✅
 router.get('/assigned/:lot',getAssigned);
 
 

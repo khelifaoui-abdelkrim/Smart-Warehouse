@@ -306,15 +306,17 @@ exports.getAvailablePalleteModel = async (req,res) =>{
 exports.getAssigned = async (req,res) =>{
     try {
         const {lot} = req.params;
-        const allPallets = await Pallet.find({deleted : false, model : model})
-        const taken = await Pallet.find({ordered : true, deleted : false , model : model})
+        const allPallets = await Pallet.find({lot}); //get all pallets of the lot
+        const palletsIDs = allPallets.map(p => p.palette_id);
+        const orders = await Order.find({
+            "products.assignedPallets" : {$in : palletsIDs}
+        })
 
-        const total = allPallets.length - taken.length;
-        
-        if(total === 0){
-            return res.status(404).json({message : `no pallets available for the model ${model}`})
+
+        if(orders.length === 0){ // not !order cause its an array
+            return res.status(404).json({message : `no orders found `})
         }
-        return res.status(200).json({message : `available ${total} pallets for the model ${model}`})
+        return res.status(200).json({message : `found ${orders.length} which have pallets of the lot ${lot}` ,orders})
     }catch (error) {
         return res.status(500).json({message : "server error : ",error : error.message})
     }
