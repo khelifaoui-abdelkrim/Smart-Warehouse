@@ -11,6 +11,25 @@ exports.createOrder = async (req,res) =>{
         const {client, dock, products} = req.body;
         const createdBy = req.user.username;
 
+        async function idGenerator2(){
+            
+        //get the last order id
+        const lastOrderId = await Order.findOne({})
+        .sort({ order_id: -1 }) // Sort descending
+        .limit(1);
+
+        let nextId = 1;
+
+        if (lastOrderId && lastOrderId.order_id) {
+            const numberPart = parseInt(lastOrderId.order_id.split('_')[1], 10);
+            if (!isNaN(numberPart)) {
+              nextId = numberPart + 1;
+            }
+          }
+        
+        return `order_${nextId}`;
+        }
+
         //first get the products content 
         const gatheredProducts = [];
 
@@ -59,6 +78,7 @@ exports.createOrder = async (req,res) =>{
 
         //now create the order
         const newOrder = new Order({
+            order_id : await idGenerator2(),
             client,
             createdBy,
             dock,

@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
+const Order = require('../models/order');
 
-function idGenerator2() {
-    const id = (Math.floor(Math.random() * 100000)).toString();
 
-    return `order_${id}`;
-}
 
 const orderShema = new mongoose.Schema({
 
     //order id
-    order_id: { type: String, required : true , unique : true, default : idGenerator2},
+    order_id: { type: String, required : true , unique : true},
     //client
     client: { type: String, enum:['client1','client2','client3'] , required : true},
     //created by
