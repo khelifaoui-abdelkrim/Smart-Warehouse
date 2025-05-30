@@ -10,7 +10,8 @@ exports.createOrder = async (req,res) =>{
     try {
         const {client, dock, products} = req.body;
         const createdBy = req.user.username;
-
+        
+        //function to assign order_id
         async function idGenerator2(){
             
         //get the last order id
