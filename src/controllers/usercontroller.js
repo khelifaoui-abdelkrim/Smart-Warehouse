@@ -105,9 +105,14 @@ exports.getAllUsers = async (req,res) =>{
 ////////////////////////////////////////
 
 exports.getUserProfile = async (req,res) =>{
-    const {username} = req.params;
+    const {identifier} = req.params;
     try {
-        const user = await User.find({username})
+        const user = await User.findOne({
+            $or: [
+                {username : identifier},
+                {email : identifier}
+            ]
+        })
         if(!user){
             return res.status(404).json({message : "user not found ! "})
         }

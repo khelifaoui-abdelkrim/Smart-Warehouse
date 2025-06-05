@@ -12,10 +12,10 @@ const router = express.Router();
 ///////////////////////////////////////////////
 
 //register palette ✅
-router.post('/pallete/add',registerPalette);
+router.post('/pallete/add',authMiddleware,registerPalette);
 
 //return a  specified pallet✅
-router.get('/pallete/:palette_id', getPalette);
+router.get('/pallete/:palette_id',authMiddleware, getPalette);
 
 //update pallets status ✅
 router.put('/pallete/update', authMiddleware,updateStatus );
@@ -28,15 +28,15 @@ router.put('/pallete/:palette_id', authMiddleware, deletePalette);
 ///////////////////////////////////////////////
 
 //return all pallets✅
-router.get('/all', getAll);
+router.get('/all',authMiddleware, getAll);
 
 //return all deleted pallets✅
-router.get('/alld',getDeleteAll);
+router.get('/alld',authMiddleware,getDeleteAll);
 
 //return all validated pallets✅
-router.get('/allv', getAllvalidated);
+router.get('/allv',authMiddleware, getAllvalidated);
 
-router.delete('/all', HdeleteAll);
+router.delete('/all',authMiddleware, HdeleteAll);
 
 //soft delete all pallets ✅
 router.put('/all', authMiddleware, deleteAll);
@@ -49,17 +49,17 @@ router.delete('/all', authMiddleware, HdeleteAll);
 router.put('/alld',authMiddleware, restoreAll); 
 
 //restore all pallets ✅
-router.get('/:model', modelCounter); 
+router.get('/:model',authMiddleware, modelCounter); 
 
 
 
 //############################## lot operations ##########################/////
 
 //get all lots ✅
-router.get('/lots/all', getAllLots); 
+router.get('/lots/all',authMiddleware, getAllLots); 
 
 //change Lot status✅  
-router.put('/lots/status/', changeLotStatus);
+router.put('/lots/status/',authMiddleware, changeLotStatus);
 
 
 module.exports = router;

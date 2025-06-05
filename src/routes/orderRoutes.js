@@ -8,34 +8,34 @@ const router = express.Router();
 router.post('/create',authMiddleware,createOrder); //il faut se connecter pour utiliser le nom de utilisateur actuel dans le bon
 
 //delete a pallet of orders (soft del)  esp32✅ pour karim
-router.put('/:dock/delete',deletePalletOrder);
+router.put('/:dock/delete',authMiddleware, deletePalletOrder);
 
 //cancel an order✅
-router.put('/cancel/:order_id',cancelOrder);
+router.put('/cancel/:order_id',authMiddleware, cancelOrder);
 
 //get all  orders ✅
-router.get('/all',getAllOrders);
+router.get('/all',authMiddleware, getAllOrders);
 
 //get order by id ✅
-router.get('/order/:order_id',getOrder);
+router.get('/order/:order_id',authMiddleware, getOrder);
 
 //get all pending orders ✅
-router.get('/pending/all',getAllPending);
+router.get('/pending/all',authMiddleware, getAllPending);
 
 //get all shipped orders ✅
-router.get('/shipped/all',getAllShipped);
+router.get('/shipped/all',authMiddleware, getAllShipped);
 
 //get all Canceled orders ✅
-router.get('/canceled/all',getAllCanceled);
+router.get('/canceled/all',authMiddleware, getAllCanceled);
 
 //get shipping progress for an order✅
-router.get('/progress/:order_id',getShippingProgress);
+router.get('/progress/:order_id',authMiddleware, getShippingProgress);
 
 //get available pallets for a model✅
-router.get('/pallets/available/:model',getAvailablePalleteModel);
+router.get('/pallets/available/:model',authMiddleware, getAvailablePalleteModel);
 
 //get orders which have pallets of a specified lot✅
-router.get('/assigned/:lot',getAssigned);
+router.get('/assigned/:lot',authMiddleware, getAssigned);
 
 
 module.exports = router;

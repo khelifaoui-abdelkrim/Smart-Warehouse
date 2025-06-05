@@ -5,9 +5,9 @@ const {authMiddleware} = require("../middleware/authMiddleware")
 
 const router = express.Router();
 
-router.put("/model",setPaletteModel); //set pallete model
-router.get("/model/:line",getPaletteModel); //get line pallete model
-router.get("/all",getAllModels); //get all lines palette model
+router.put("/model",authMiddleware, setPaletteModel); //set pallete model
+router.get("/model/:line",authMiddleware, getPaletteModel); //get line pallete model
+router.get("/all",authMiddleware, getAllModels); //get all lines palette model
 
 
 module.exports = router

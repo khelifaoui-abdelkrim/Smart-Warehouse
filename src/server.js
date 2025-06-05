@@ -1,21 +1,29 @@
 require('dotenv').config();
 const express = require('express');
+const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const app = express();
-
 const pallet_routes = require('./routes/paletteRoutes');
 const user_routes = require('./routes/userRoutes');
 const scanLog_routes = require('./routes/scanLogRoutes');
 const model_routes = require('./routes/pallet_modelroutes');
 const order_routes = require('./routes/orderRoutes');
 
+const https = require('https');
+const fs = require('fs'); //file system
 
 app.use(cors());
 app.use(bodyParser.json());
 
+
 const PORT = process.env.PORT || 3000;
+
+
+const options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+  };
 
 // Connect to MongoDB
 const connectDB = async () =>{
@@ -45,10 +53,13 @@ app.get('/', (req, res) => {
     res.send("Smart Pallet System API is running...");
 });
 
-
-app.listen(PORT,() => {
+https.createServer(options, app).listen(PORT, () =>{
     console.log(`Server running on port ${PORT}`);
-});
+})
+
+// app.listen(PORT,() => {
+//     console.log(`Server running on port ${PORT}`);
+// });
 // app.listen(PORT,'0.0.0.0',() => {
 //     console.log(`Server running on port ${PORT}`);
 // });
