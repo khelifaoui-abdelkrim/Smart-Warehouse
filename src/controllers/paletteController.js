@@ -150,6 +150,35 @@ exports.getValidatedModelsQuantity = async (req, res) => {
     }
 };
 
+//get quantity of all validated pallets per model✅
+exports.getQuarantineModelsQuantity = async (req, res) => {
+    try {
+        // first Define all possible models
+        const allModels = ['A', 'B', 'C', 'D', 'E'];
+
+        //then get the count for each model
+        const counts = await Pallet.aggregate([
+            { $match: { deleted: false , current_status : "Q"} },
+            { $group: { _id: "$model", count: { $sum: 1 } } }
+        ]);
+
+        //convert to list
+        const countMap = {};
+        counts.forEach(result =>{
+            countMap[result._id] = result.count;
+        })
+
+        //final result
+        const result = allModels.map(model=>({
+            model,
+            count : countMap[model] || 0 
+        }))
+
+        return res.status(200).json(result);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};
 
 //get all validated pallets✅
 exports.getAllvalidated = async (req, res) => {
