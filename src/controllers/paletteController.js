@@ -90,6 +90,67 @@ exports.getAll = async (req, res) => {
     }
 }
 
+//get quantity of all pallets per model✅
+exports.getModelsQuantity = async (req, res) => {
+    try {
+        // first Define all possible models
+        const allModels = ['A', 'B', 'C', 'D', 'E'];
+
+        //then get the count for each model
+        const counts = await Pallet.aggregate([
+            { $match: { deleted: false } },
+            { $group: { _id: "$model", count: { $sum: 1 } } }
+        ]);
+
+        //convert to list
+        const countMap = {};
+        counts.forEach(result =>{
+            countMap[result._id] = result.count;
+        })
+
+        //final result
+        const result = allModels.map(model=>({
+            model,
+            count : countMap[model] || 0 
+        }))
+
+        return res.status(200).json(result);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};
+
+//get quantity of all validated pallets per model✅
+exports.getValidatedModelsQuantity = async (req, res) => {
+    try {
+        // first Define all possible models
+        const allModels = ['A', 'B', 'C', 'D', 'E'];
+
+        //then get the count for each model
+        const counts = await Pallet.aggregate([
+            { $match: { deleted: false , current_status : "V"} },
+            { $group: { _id: "$model", count: { $sum: 1 } } }
+        ]);
+
+        //convert to list
+        const countMap = {};
+        counts.forEach(result =>{
+            countMap[result._id] = result.count;
+        })
+
+        //final result
+        const result = allModels.map(model=>({
+            model,
+            count : countMap[model] || 0 
+        }))
+
+        return res.status(200).json(result);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};
+
+
 //get all validated pallets✅
 exports.getAllvalidated = async (req, res) => {
     try {
@@ -99,26 +160,6 @@ exports.getAllvalidated = async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 }
-
-
-// exports.changeLotStatus = async (req, res) => {
-//     try {
-//         const {lot} = req.params;
-//         const start = new Date(lot);
-//         start.setUTCHours(0, 0, 0, 0);
-//         // End of day (e.g. 2025-05-01T23:59:59.999Z)
-//         const end = new Date(lot);
-//         end.setUTCHours(23, 59, 59, 999);
-        
-//         const pallets = await Pallet.updateMany({deleted : false ,last_scan: { $gte: start, $lt: end }} , {$set :{current_status : "V"}});
-//         if(pallets.modifiedCount === 0){
-//             return res.status(404).json({message : "no pallet found for that date"});
-//         }
-//         return res.status(200).json({ message: `✅ ${pallets.modifiedCount} pallet(s) validated.` });
-//     } catch (err) {
-//         return res.status(500).json({ error: err.message });
-//     }
-// }
 
 //get delete all pallets (soft delete)✅
 exports.getDeleteAll = async (req , res) =>{
