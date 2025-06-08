@@ -52,13 +52,13 @@ router.put('/alld',authMiddleware, restoreAll);
 router.get('/:model',authMiddleware, modelCounter); 
 
 //get quantity of all pallets per model✅
-router.get('/models/all', getModelsQuantity); 
+router.get('/models/all',authMiddleware, getModelsQuantity); 
 
 //get quantity of all validated pallets per model✅
-router.get('/models/allv', getValidatedModelsQuantity);
+router.get('/models/allv',authMiddleware, getValidatedModelsQuantity);
 
 //get quantity of all "Q" pallets per model✅
-router.get('/models/allq', getQuarantineModelsQuantity);
+router.get('/models/allq',authMiddleware, getQuarantineModelsQuantity);
 
 //############################## lot operations ##########################/////
 
