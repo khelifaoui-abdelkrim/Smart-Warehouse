@@ -43,8 +43,8 @@ exports.createOrder = async (req,res) =>{
 
             for(const order of pending){
                 const matchingProducts = order.products.find(p => p.model === model);
-                const assigned = matchingProducts.assignedPallets || [];
                 if(matchingProducts){
+                    const assigned = matchingProducts.assignedPallets || [];
                     reservedCount += matchingProducts.quantity - assigned.length;
                 }
             }           
@@ -229,7 +229,7 @@ exports.cancelOrder= async (req , res) =>{
 
 exports.getAllOrders = async (req,res) =>{
     try {
-        const allOrders = await Order.find({}); //get all orders
+        const allOrders = await Order.find({status :{ $in : ["Pending", "Shipped"] }}); //get all orders
 
         if(allOrders === 0){ // not !order cause its an array 
             return res.status(404).json({message : `no orders found `})
