@@ -219,9 +219,11 @@ exports.getPalette = async (req, res) => {
 exports.deletePalette = async (req , res) =>{
     try {
        const {palette_id} = req.params;
-    //    if (isNaN(palette_id)) {
-    //     return res.status(400).json({message : "palette_id must be a number"});
-    //    }
+
+       const status = await Pallet.findOne({palette_id})
+       if(status.deleted){
+        return res.status(404).json({message : "pallet already deleted"});
+       }
        const deletePallet = await Pallet.findOneAndUpdate(
         {palette_id}, //the filter
         {deleted : true}, //the update
