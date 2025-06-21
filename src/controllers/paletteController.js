@@ -128,7 +128,7 @@ exports.getValidatedModelsQuantity = async (req, res) => {
 
         //then get the count for each model
         const counts = await Pallet.aggregate([
-            { $match: { deleted: false , current_status : "V"} },
+            { $match: { deleted: false , current_status : "V", ordered : false} },
             { $group: { _id: "$model", count: { $sum: 1 } } }
         ]);
 
